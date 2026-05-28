@@ -7,11 +7,14 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SoftDelete;
 
 @Entity
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Post extends BaseEntity {
 
@@ -54,5 +57,9 @@ public class Post extends BaseEntity {
 
     public void sync() {
         this.syncedAt = LocalDateTime.now();
+    }
+
+    public Optional<Category> getCategory() {
+        return Optional.ofNullable(category);
     }
 }
