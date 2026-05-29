@@ -1,7 +1,9 @@
 package junhyeok.blog.presentation;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import junhyeok.blog.application.PostService;
-import junhyeok.blog.application.dto.GetPostCondition;
 import junhyeok.blog.application.dto.response.GetPostResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -17,10 +19,9 @@ public class PostController {
 
     @GetMapping("/posts")
     public Page<GetPostResponse> getPosts(
-            @RequestParam(required = false) Long categoryId,
-            @RequestParam int page,
-            @RequestParam int size
+            @RequestParam @PositiveOrZero int page,
+            @RequestParam @Positive @Max(100) int size
     ) {
-        return postService.getPosts(new GetPostCondition(categoryId, page, size));
+        return postService.getPosts(page, size);
     }
 }

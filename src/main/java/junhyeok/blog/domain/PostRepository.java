@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface PostRepository extends JpaRepository<Post, Long>, PostRepositoryCustom {
+public interface PostRepository extends JpaRepository<Post, Long> {
 
     @Query(value = "SELECT * FROM post WHERE notion_page_id = :notionPageId", nativeQuery = true)
     Optional<Post> findByNotionPageIdIgnoringDelete(@Param("notionPageId") String notionPageId);

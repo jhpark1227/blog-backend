@@ -113,18 +113,6 @@ select *
 from (select 0 as ID, '0' as UNIQUE_KEY) as tmp
 where not exists(select * from BATCH_JOB_INSTANCE_SEQ);
 
-
-CREATE TABLE category
-(
-    id            BIGINT       NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    name          VARCHAR(255) NOT NULL,
-    display_order INT          NOT NULL,
-    parent_id     BIGINT,
-    UNIQUE KEY uk_category_parent_id_name (parent_id, name),
-    INDEX idx_category_parent_id (parent_id),
-    CONSTRAINT fk_category_parent_id FOREIGN KEY (parent_id) REFERENCES category (id)
-);
-
 CREATE TABLE post
 (
     id                      BIGINT       NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -132,12 +120,9 @@ CREATE TABLE post
     title                   VARCHAR(255) NOT NULL,
     notion_created_time     DATETIME(6),
     notion_last_edited_time DATETIME(6),
-    category_id             BIGINT,
     synced_at               DATETIME(6)  NOT NULL,
     created_at              DATETIME(6)  NOT NULL,
     updated_at              DATETIME(6)  NOT NULL,
     deleted                 BIT          NOT NULL,
-    UNIQUE KEY uk_post_notion_page_id (notion_page_id),
-    INDEX idx_post_category_id (category_id),
-    CONSTRAINT fk_post_category_id FOREIGN KEY (category_id) REFERENCES category (id)
+    UNIQUE KEY uk_post_notion_page_id (notion_page_id)
 );

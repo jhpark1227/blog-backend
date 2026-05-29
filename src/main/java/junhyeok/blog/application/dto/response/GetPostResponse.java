@@ -7,7 +7,6 @@ public record GetPostResponse(
         long id,
         String notionPageId,
         String title,
-        String categoryPath,
         LocalDateTime createdAt
 ) {
     public static GetPostResponse from(Post post) {
@@ -15,7 +14,6 @@ public record GetPostResponse(
                 post.getId(),
                 post.getNotionPageId(),
                 post.getTitle(),
-                post.getCategory().isPresent() ? post.getCategory().get().getFullPath() : null,
                 post.getCreatedAt()
         );
     }

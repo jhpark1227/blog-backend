@@ -1,13 +1,10 @@
 package junhyeok.blog.domain;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
 import java.time.LocalDateTime;
-import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,9 +26,6 @@ public class Post extends BaseEntity {
     private LocalDateTime notionCreatedTime;
 
     private LocalDateTime notionLastEditedTime;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Category category;
 
     @SoftDelete
     private boolean deleted;
@@ -57,9 +51,5 @@ public class Post extends BaseEntity {
 
     public void sync() {
         this.syncedAt = LocalDateTime.now();
-    }
-
-    public Optional<Category> getCategory() {
-        return Optional.ofNullable(category);
     }
 }
