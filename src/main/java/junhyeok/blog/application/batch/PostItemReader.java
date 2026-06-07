@@ -2,7 +2,7 @@ package junhyeok.blog.application.batch;
 
 import java.util.ArrayList;
 import java.util.List;
-import junhyeok.blog.application.PostDataClient;
+import junhyeok.blog.application.BlogDataClient;
 import junhyeok.blog.domain.PostData;
 import junhyeok.blog.domain.PostDataResult;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class PostItemReader implements ItemReader<PostData> {
 
-    private final PostDataClient postDataClient;
+    private final BlogDataClient blogDataClient;
 
     private List<PostData> currentBatch = new ArrayList<>();
     private int currentIndex = 0;
@@ -30,7 +30,7 @@ public class PostItemReader implements ItemReader<PostData> {
                 return null;
             }
 
-            PostDataResult result = postDataClient.get(nextCursor);
+            PostDataResult result = blogDataClient.getPostData(nextCursor);
             currentBatch = result.items();
             nextCursor = result.nextCursor();
             hasMore = result.hasMore();

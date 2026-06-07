@@ -1,14 +1,14 @@
 package junhyeok.blog.infrastructure;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import junhyeok.blog.domain.PostData;
+import junhyeok.blog.domain.TagData;
 
-public record NotionDataSourceResponse(
+public record NotionDataSourceQueryResponse(
         List<PageResult> results,
 
         @JsonProperty("next_cursor")
@@ -34,7 +34,12 @@ public record NotionDataSourceResponse(
                     id,
                     properties.title.plainText(),
                     toKst(createdTime),
-                    toKst(lastEditedTime)
+                    toKst(lastEditedTime),
+                    properties().tagProperty()
+                            .multiSelects()
+                            .stream()
+                            .map(o -> new TagData(o.id, o.name))
+                            .toList()
             );
         }
 
@@ -47,7 +52,9 @@ public record NotionDataSourceResponse(
 
     public record Properties(
             @JsonProperty("제목")
-            TitleProperty title
+            TitleProperty title,
+            @JsonProperty("태그")
+            TagProperty tagProperty
     ) {
     }
 
@@ -66,6 +73,18 @@ public record NotionDataSourceResponse(
     public record TitleDetail(
             @JsonProperty("plain_text")
             String plainText
+    ) {
+    }
+
+    private record TagProperty(
+            @JsonProperty("multi_select")
+            List<MultiSelect> multiSelects
+    ) {
+    }
+
+    private record MultiSelect(
+            String id,
+            String name
     ) {
     }
 }

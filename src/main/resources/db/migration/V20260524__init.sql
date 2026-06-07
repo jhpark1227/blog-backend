@@ -81,7 +81,7 @@ CREATE TABLE BATCH_STEP_EXECUTION_SEQ
 (
     ID         BIGINT  NOT NULL,
     UNIQUE_KEY CHAR(1) NOT NULL,
-    constraint UNIQUE_KEY_UN unique (UNIQUE_KEY)
+    constraint BATCH_STEP_EXECUTION_SEQ_UN unique (UNIQUE_KEY)
 ) ENGINE = InnoDB;
 
 INSERT INTO BATCH_STEP_EXECUTION_SEQ (ID, UNIQUE_KEY)
@@ -93,7 +93,7 @@ CREATE TABLE BATCH_JOB_EXECUTION_SEQ
 (
     ID         BIGINT  NOT NULL,
     UNIQUE_KEY CHAR(1) NOT NULL,
-    constraint UNIQUE_KEY_UN unique (UNIQUE_KEY)
+    constraint BATCH_JOB_EXECUTION_SEQ_UN unique (UNIQUE_KEY)
 ) ENGINE = InnoDB;
 
 INSERT INTO BATCH_JOB_EXECUTION_SEQ (ID, UNIQUE_KEY)
@@ -105,7 +105,7 @@ CREATE TABLE BATCH_JOB_INSTANCE_SEQ
 (
     ID         BIGINT  NOT NULL,
     UNIQUE_KEY CHAR(1) NOT NULL,
-    constraint UNIQUE_KEY_UN unique (UNIQUE_KEY)
+    constraint BATCH_JOB_INSTANCE_SEQ_UN unique (UNIQUE_KEY)
 ) ENGINE = InnoDB;
 
 INSERT INTO BATCH_JOB_INSTANCE_SEQ (ID, UNIQUE_KEY)
@@ -113,16 +113,29 @@ select *
 from (select 0 as ID, '0' as UNIQUE_KEY) as tmp
 where not exists(select * from BATCH_JOB_INSTANCE_SEQ);
 
+CREATE TABLE tag
+(
+    notion_option_id VARCHAR(50)  NOT NULL PRIMARY KEY,
+    name             VARCHAR(50)  NOT NULL
+);
+
 CREATE TABLE post
 (
-    id                      BIGINT       NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    notion_page_id          VARCHAR(50)  NOT NULL,
+    notion_page_id          VARCHAR(50)  NOT NULL PRIMARY KEY,
     title                   VARCHAR(255) NOT NULL,
     notion_created_time     DATETIME(6),
     notion_last_edited_time DATETIME(6),
     synced_at               DATETIME(6)  NOT NULL,
     created_at              DATETIME(6)  NOT NULL,
     updated_at              DATETIME(6)  NOT NULL,
-    deleted                 BIT          NOT NULL,
-    UNIQUE KEY uk_post_notion_page_id (notion_page_id)
+    deleted                 BIT          NOT NULL
 );
+
+CREATE TABLE post_tag
+(
+    post_id VARCHAR(50) NOT NULL,
+    tag_id  VARCHAR(50) NOT NULL,
+    PRIMARY KEY (post_id, tag_id),
+    CONSTRAINT fk_post_tag_post FOREIGN KEY (post_id) REFERENCES post (notion_page_id) ON DELETE CASCADE,
+    CONSTRAINT fk_post_tag_tag  FOREIGN KEY (tag_id)  REFERENCES tag (notion_option_id)  ON DELETE CASCADE
+)

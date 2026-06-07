@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 public class PostSyncScheduler {
 
     private final JobOperator jobOperator;
-    private final Job postSyncJob;
+    private final Job dataSyncJob;
 
     @Scheduled(cron = "${batch.post-sync.cron}")
     public void run() {
@@ -25,7 +25,7 @@ public class PostSyncScheduler {
                     .addLocalDateTime("runAt", LocalDateTime.now())
                     .toJobParameters();
 
-            jobOperator.start(postSyncJob, params);
+            jobOperator.start(dataSyncJob, params);
         } catch (Exception e) {
             log.error("Post sync batch failed", e);
         }

@@ -5,6 +5,7 @@ import junhyeok.blog.application.batch.PostItemProcessor;
 import junhyeok.blog.application.batch.PostItemReader;
 import junhyeok.blog.application.batch.PostItemWriter;
 import junhyeok.blog.application.batch.PostSyncJobListener;
+import junhyeok.blog.application.batch.TagSyncTasklet;
 import junhyeok.blog.domain.Post;
 import junhyeok.blog.domain.PostData;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
 @RequiredArgsConstructor
-public class PostSyncJobConfig {
+public class DataSyncJobConfig {
 
     private static final int CHUNK_SIZE = 1;
 
@@ -28,20 +29,29 @@ public class PostSyncJobConfig {
     private final PlatformTransactionManager transactionManager;
 
     @Bean
-    public Job notionSyncJob(
+    public Job DataSyncJob(
+            Step tagSyncStep,
             PostSyncJobListener postSyncJobListener,
-            Step notionSyncStep,
+            Step postSyncStep,
             Step deleteObsoletePostsStep
     ) {
-        return new JobBuilder("notionSyncJob", jobRepository)
-                .listener(postSyncJobListener)   // beforeJob: jobStartTime을 ExecutionContext에 기록
-                .start(notionSyncStep)           // Step 1: Notion → DB 동기화 (updatedAt 갱신)
-                .next(deleteObsoletePostsStep)   // Step 2: updatedAt < jobStartTime → 소프트딜리트
+        return new JobBuilder("dataSyncJob", jobRepository)
+                .listener(postSyncJobListener)
+                .start(tagSyncStep)
+                .next(postSyncStep)
+                .next(deleteObsoletePostsStep)
                 .build();
     }
 
     @Bean
-    public Step notionSyncStep(
+    public Step tagSyncStep(TagSyncTasklet tagSyncTasklet) {
+        return new StepBuilder("tagSyncStep", jobRepository)
+                .tasklet(tagSyncTasklet, transactionManager)
+                .build();
+    }
+
+    @Bean
+    public Step postSyncStep(
             PostItemReader postItemReader,
             PostItemProcessor postItemProcessor,
             PostItemWriter postItemWriter
