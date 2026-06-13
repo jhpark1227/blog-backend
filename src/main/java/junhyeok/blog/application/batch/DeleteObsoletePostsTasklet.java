@@ -30,7 +30,7 @@ public class DeleteObsoletePostsTasklet implements Tasklet {
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) {
-        int deletedCount = postRepository.softDeleteUnsyncedBefore(jobStartTime);
+        int deletedCount = postRepository.markDeletedWhenNotSyncedSince(jobStartTime);
         log.info("Notion에서 삭제된 포스트 {}건 소프트딜리트 완료 (기준 시각: {})", deletedCount, jobStartTime);
         contribution.incrementWriteCount(deletedCount);
         return RepeatStatus.FINISHED;

@@ -2,8 +2,9 @@ package junhyeok.blog.application.batch;
 
 import java.util.List;
 import junhyeok.blog.application.BlogDataClient;
+import junhyeok.blog.domain.Category;
+import junhyeok.blog.domain.CategoryRepository;
 import junhyeok.blog.domain.Tag;
-import junhyeok.blog.domain.TagData;
 import junhyeok.blog.domain.TagRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,18 +19,20 @@ import org.springframework.stereotype.Component;
 @Component
 @StepScope
 @RequiredArgsConstructor
-public class TagSyncTasklet implements Tasklet {
+public class MetadataSyncTasklet implements Tasklet {
 
+    private final CategoryRepository categoryRepository;
     private final TagRepository tagRepository;
     private final BlogDataClient blogDataClient;
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) {
+        categoryRepository.deleteAll();
         tagRepository.deleteAll();
-        List<TagData> tagDatas = blogDataClient.getTagData();
-        for (TagData tagData : tagDatas) {
-            tagRepository.save(new Tag(tagData.tagId(), tagData.name()));
-        }
+        List<Category> allCategories = blogDataClient.getCategories();
+        List<Tag> allTags = blogDataClient.getTags();
+        categoryRepository.saveAll(allCategories);
+        tagRepository.saveAll(allTags);
         return RepeatStatus.FINISHED;
     }
 }

@@ -1,11 +1,11 @@
 package junhyeok.blog.global.config;
 
 import junhyeok.blog.application.batch.DeleteObsoletePostsTasklet;
-import junhyeok.blog.application.batch.PostItemProcessor;
-import junhyeok.blog.application.batch.PostItemReader;
+import junhyeok.blog.application.batch.MetadataSyncTasklet;
+import junhyeok.blog.application.batch.PostDataItemProcessor;
+import junhyeok.blog.application.batch.PostDataItemReader;
 import junhyeok.blog.application.batch.PostItemWriter;
 import junhyeok.blog.application.batch.PostSyncJobListener;
-import junhyeok.blog.application.batch.TagSyncTasklet;
 import junhyeok.blog.domain.Post;
 import junhyeok.blog.domain.PostData;
 import lombok.RequiredArgsConstructor;
@@ -44,22 +44,22 @@ public class DataSyncJobConfig {
     }
 
     @Bean
-    public Step tagSyncStep(TagSyncTasklet tagSyncTasklet) {
+    public Step tagSyncStep(MetadataSyncTasklet metadataSyncTasklet) {
         return new StepBuilder("tagSyncStep", jobRepository)
-                .tasklet(tagSyncTasklet, transactionManager)
+                .tasklet(metadataSyncTasklet, transactionManager)
                 .build();
     }
 
     @Bean
     public Step postSyncStep(
-            PostItemReader postItemReader,
-            PostItemProcessor postItemProcessor,
+            PostDataItemReader postDataItemReader,
+            PostDataItemProcessor postDataItemProcessor,
             PostItemWriter postItemWriter
     ) {
         return new ChunkOrientedStepBuilder<PostData, Post>(jobRepository, CHUNK_SIZE)
                 .transactionManager(transactionManager)
-                .reader(postItemReader)
-                .processor(postItemProcessor)
+                .reader(postDataItemReader)
+                .processor(postDataItemProcessor)
                 .writer(postItemWriter)
                 .build();
     }
