@@ -19,7 +19,7 @@ spring:
 
 batch:
   post-sync:
-    cron: "0 0/1 * * * *"
+    cron: "0 0 * * * *"
 
 notion:
   datasource-id: ${NOTION_DATASOURCE_ID}
