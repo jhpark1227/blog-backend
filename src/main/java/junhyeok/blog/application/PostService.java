@@ -1,10 +1,15 @@
 package junhyeok.blog.application;
 
-import junhyeok.blog.application.dto.response.GetPostResponse;
+import java.util.List;
+import junhyeok.blog.application.dto.response.PostDetailResponse;
+import junhyeok.blog.application.dto.response.PostResponse;
+import junhyeok.blog.domain.Post;
 import junhyeok.blog.domain.PostRepository;
+import junhyeok.blog.global.exception.CustomException;
+import junhyeok.blog.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,8 +20,21 @@ public class PostService {
 
     private final PostRepository postRepository;
 
-    public Page<GetPostResponse> getPosts(int page, int size) {
-        return postRepository.findAll(PageRequest.of(page, size))
-                .map(GetPostResponse::from);
+    public Page<PostResponse> getPosts(String categoryId, List<String> tagIds, Pageable pageable) {
+        return postRepository.findPublishedBy(categoryId, tagIds, pageable)
+                .map(PostResponse::from);
+    }
+
+    public PostDetailResponse getPost(String postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+        return PostDetailResponse.from(post);
+    }
+
+    public List<PostResponse> getPinnedPosts() {
+        return postRepository.findAllPinnedPost()
+                .stream()
+                .map(PostResponse::from)
+                .toList();
     }
 }
