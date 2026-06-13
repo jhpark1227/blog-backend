@@ -1,0 +1,17 @@
+package junhyeok.blog.global.exception;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
+public enum ErrorCode {
+
+    INVALID_CATEGORY_ID("유효하지 않은 카테고리ID입니다."),
+    CATEGORY_NOT_FOUND("존재하지 않는 카테고리입니다."),
+    POST_NOT_FOUND("존재하지 않는 글입니다."),
+    NOTION_RESPONSE_INVALID("Notion 응답을 파싱할 수 없습니다."),
+    ;
+
+    private final String message;
+}
