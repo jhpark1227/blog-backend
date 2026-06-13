@@ -113,29 +113,43 @@ select *
 from (select 0 as ID, '0' as UNIQUE_KEY) as tmp
 where not exists(select * from BATCH_JOB_INSTANCE_SEQ);
 
+CREATE TABLE category
+(
+    notion_option_id VARCHAR(50) NOT NULL PRIMARY KEY,
+    name             VARCHAR(50) NOT NULL,
+    color            VARCHAR(20) NOT NULL,
+    sort_order       INT         NOT NULL
+);
+
 CREATE TABLE tag
 (
-    notion_option_id VARCHAR(50)  NOT NULL PRIMARY KEY,
-    name             VARCHAR(50)  NOT NULL
+    notion_option_id VARCHAR(50) NOT NULL PRIMARY KEY,
+    name             VARCHAR(50) NOT NULL,
+    color            VARCHAR(20) NOT NULL,
+    sort_order       INT         NOT NULL
 );
 
 CREATE TABLE post
 (
-    notion_page_id          VARCHAR(50)  NOT NULL PRIMARY KEY,
-    title                   VARCHAR(255) NOT NULL,
-    notion_created_time     DATETIME(6),
+    notion_page_id          VARCHAR(50)                              NOT NULL PRIMARY KEY,
+    title                   VARCHAR(255)                             NOT NULL,
+    content                 LONGTEXT,
+    status                  ENUM ('DELETED', 'PUBLISHED', 'PENDING') NOT NULL,
+    published_date          DATE,
     notion_last_edited_time DATETIME(6),
-    synced_at               DATETIME(6)  NOT NULL,
-    created_at              DATETIME(6)  NOT NULL,
-    updated_at              DATETIME(6)  NOT NULL,
-    deleted                 BIT          NOT NULL
+    synced_at               DATETIME(6)                              NOT NULL,
+    excerpt                 VARCHAR(255),
+    excerpt_generated_at    DATETIME(6),
+    pinned                  BIT                                      NOT NULL,
+    created_at              DATETIME(6)                              NOT NULL,
+    updated_at              DATETIME(6)                              NOT NULL,
+    category_id             VARCHAR(50)
 );
 
 CREATE TABLE post_tag
 (
     post_id VARCHAR(50) NOT NULL,
     tag_id  VARCHAR(50) NOT NULL,
-    PRIMARY KEY (post_id, tag_id),
     CONSTRAINT fk_post_tag_post FOREIGN KEY (post_id) REFERENCES post (notion_page_id) ON DELETE CASCADE,
-    CONSTRAINT fk_post_tag_tag  FOREIGN KEY (tag_id)  REFERENCES tag (notion_option_id)  ON DELETE CASCADE
+    CONSTRAINT fk_post_tag_tag FOREIGN KEY (tag_id) REFERENCES tag (notion_option_id) ON DELETE CASCADE
 )

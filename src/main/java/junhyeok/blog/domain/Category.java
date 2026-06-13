@@ -9,18 +9,18 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Tag {
+public class Category {
 
     @Id
-    String notionOptionId;
+    private String notionOptionId;
 
-    String name;
+    private String name;
 
-    String color;
+    private String color;
 
-    int sortOrder;
+    private int sortOrder;
 
-    public Tag(String notionOptionId, String name, String color, int sortOrder) {
+    public Category(String notionOptionId, String name, String color, int sortOrder) {
         this.notionOptionId = notionOptionId;
         this.name = name;
         this.color = color;

@@ -1,17 +1,21 @@
 package junhyeok.blog.domain;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.SoftDelete;
 
 @Entity
 @Getter
@@ -23,44 +27,55 @@ public class Post extends BaseEntity {
 
     private String title;
 
-    private LocalDateTime notionCreatedTime;
+    @Enumerated(EnumType.STRING)
+    private PostStatus status;
+
+    private String content;
+
+    private String excerpt;
+
+    private LocalDateTime excerptGeneratedAt;
+
+    private LocalDate publishedDate;
 
     private LocalDateTime notionLastEditedTime;
 
-    @SoftDelete
-    private boolean deleted;
-
     private LocalDateTime syncedAt;
 
+    boolean pinned;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
+
     @ManyToMany
-    @JoinTable(name = "post_tag",
-            joinColumns = @JoinColumn(name = "post_id"),
-            inverseJoinColumns = @JoinColumn(name = "tag_id"))
+    @JoinTable(name = "post_tag", joinColumns = @JoinColumn(name = "post_id"), inverseJoinColumns = @JoinColumn(name = "tag_id"))
     private List<Tag> tags = new ArrayList<>();
 
-    public Post(String notionPageId, String title, LocalDateTime notionCreatedTime, LocalDateTime notionLastEditedTime, List<Tag> tags) {
+    public Post(String notionPageId, String title, PostStatus status, String content, LocalDate publishedDate,
+                LocalDateTime notionLastEditedTime, Category category, List<Tag> tags, boolean pinned) {
         this.notionPageId = notionPageId;
         this.title = title;
-        this.notionCreatedTime = notionCreatedTime;
+        this.status = status;
+        this.content = content;
+        this.publishedDate = publishedDate;
         this.notionLastEditedTime = notionLastEditedTime;
         this.syncedAt = LocalDateTime.now();
-        setTags(tags);
+        this.pinned = pinned;
+        this.category = category;
+        this.tags = tags;
     }
 
-    public void update(String title, LocalDateTime notionLastEditedTime, List<Tag> tags) {
+    public void update(String title, PostStatus status, String content, LocalDate publishedDate, LocalDateTime notionLastEditedTime,
+                       Category category, List<Tag> tags, boolean pinned) {
         this.title = title;
+        this.status = status;
+        this.content = content;
+        this.publishedDate = publishedDate;
         this.notionLastEditedTime = notionLastEditedTime;
-        setTags(tags);
-    }
-
-    private void setTags(List<Tag> newTags) {
-        this.tags.forEach(tag -> tag.removePost(this));
-        this.tags = newTags;
-        newTags.forEach(tag -> tag.addPost(this));
-    }
-
-    public void restore() {
-        this.deleted = false;
+        this.pinned = pinned;
+        this.category = category;
+        this.tags = tags;
     }
 
     public void sync() {
