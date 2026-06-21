@@ -14,6 +14,7 @@ import junhyeok.blog.domain.Tag;
 import junhyeok.blog.global.exception.CustomException;
 import junhyeok.blog.global.exception.ErrorCode;
 import junhyeok.blog.infrastructure.NotionDataSourceQueryResponse.PageResult;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -21,6 +22,7 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
 
+@Slf4j
 @Component
 public class NotionBlogDataClient implements BlogDataClient {
 
@@ -111,7 +113,7 @@ public class NotionBlogDataClient implements BlogDataClient {
         } catch (CustomException e) {
             throw e;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Notion 페이지 콘텐츠 변환 실패 (pageId: {})", pageId, e);
             throw new CustomException(ErrorCode.NOTION_RESPONSE_INVALID);
         }
     }
