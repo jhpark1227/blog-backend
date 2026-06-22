@@ -135,6 +135,9 @@ public record NotionDataSourceQueryResponse(
             Date date
     ) {
         private LocalDate getPublishedDate() {
+            if (date == null) {
+                return null;
+            }
             return date.start;
         }
     }

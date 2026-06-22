@@ -24,3 +24,14 @@ batch:
 notion:
   datasource-id: ${NOTION_DATASOURCE_ID}
   token: ${NOTION_TOKEN}
+
+logging:
+  pattern:
+    correlation: "[%X{requestId:-}] "
+
+management:
+  endpoints.web.exposure.include: health, info, prometheus, metrics, loggers
+  endpoint.health.show-details: when-authorized
+  metrics.distribution.percentiles-histogram.http.server.requests: true
+  server.port: 9292
+server.tomcat.mbeanregistry.enabled: true
