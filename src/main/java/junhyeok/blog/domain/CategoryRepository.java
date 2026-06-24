@@ -15,6 +15,7 @@ public interface CategoryRepository extends JpaRepository<Category, String> {
     @Query("""
             SELECT new junhyeok.blog.application.dto.response.CategoryResponse(p.category.notionOptionId, p.category.name, COUNT(p.category))
             FROM Post p
+            WHERE p.status = PostStatus.PUBLISHED
             GROUP BY p.category
             ORDER BY p.category.sortOrder ASC
             """)
