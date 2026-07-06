@@ -37,7 +37,7 @@ public record NotionDataSourceQueryResponse(
                             .plainText(),
                     PostStatus.valueOf(
                             properties.statusProperty
-                                    .select
+                                    .status
                                     .name
                                     .toUpperCase()
                     ),
@@ -118,7 +118,14 @@ public record NotionDataSourceQueryResponse(
     }
 
     private record StatusProperty(
-            Select select
+            Status status
+    ) {
+    }
+
+    private record Status(
+            String id,
+            String name,
+            String color
     ) {
     }
 
