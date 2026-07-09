@@ -18,12 +18,14 @@ spring:
       initialize-schema: never
 
 batch:
-  post-sync:
-    cron: "0 0 * * * *"
+  post-sync.cron: "0 0 * * * *"
+  excerpt-refresh.cron: "0 0 4 * * *"
 
 notion:
   datasource-id: ${NOTION_DATASOURCE_ID}
   token: ${NOTION_TOKEN}
+
+gemini.api-key: ${GEMINI_API_KEY}
 
 logging:
   pattern:

@@ -1,4 +1,4 @@
-package junhyeok.blog.application.batch;
+package junhyeok.blog.application.batch.excerpt;
 
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
@@ -13,21 +13,21 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class PostSyncScheduler {
+public class ExcerptRefreshScheduler {
 
     private final JobOperator jobOperator;
-    private final Job dataSyncJob;
+    private final Job excerptRefreshJob;
 
-    @Scheduled(cron = "${batch.post-sync.cron}")
+    @Scheduled(cron = "${batch.excerpt-refresh.cron}")
     public void run() {
         try {
             JobParameters params = new JobParametersBuilder()
                     .addLocalDateTime("runAt", LocalDateTime.now())
                     .toJobParameters();
 
-            jobOperator.start(dataSyncJob, params);
+            jobOperator.start(excerptRefreshJob, params);
         } catch (Exception e) {
-            log.error("Post sync batch failed", e);
+            log.error("Excerpt refresh batch failed", e);
         }
     }
 }

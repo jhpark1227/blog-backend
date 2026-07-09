@@ -1,11 +1,5 @@
-package junhyeok.blog.global.config;
+package junhyeok.blog.application.batch.dataSync;
 
-import junhyeok.blog.application.batch.DeleteObsoletePostsTasklet;
-import junhyeok.blog.application.batch.MetadataSyncTasklet;
-import junhyeok.blog.application.batch.PostDataItemProcessor;
-import junhyeok.blog.application.batch.PostDataItemReader;
-import junhyeok.blog.application.batch.PostItemWriter;
-import junhyeok.blog.application.batch.PostSyncJobListener;
 import junhyeok.blog.domain.Post;
 import junhyeok.blog.domain.PostData;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +9,7 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.Step;
 import org.springframework.batch.core.step.builder.ChunkOrientedStepBuilder;
 import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.batch.infrastructure.item.ItemWriter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -29,7 +24,7 @@ public class DataSyncJobConfig {
     private final PlatformTransactionManager transactionManager;
 
     @Bean
-    public Job DataSyncJob(
+    public Job dataSyncJob(
             Step tagSyncStep,
             PostSyncJobListener postSyncJobListener,
             Step postSyncStep,
@@ -54,13 +49,13 @@ public class DataSyncJobConfig {
     public Step postSyncStep(
             PostDataItemReader postDataItemReader,
             PostDataItemProcessor postDataItemProcessor,
-            PostItemWriter postItemWriter
+            ItemWriter<Post> postWriter
     ) {
         return new ChunkOrientedStepBuilder<PostData, Post>(jobRepository, CHUNK_SIZE)
                 .transactionManager(transactionManager)
                 .reader(postDataItemReader)
                 .processor(postDataItemProcessor)
-                .writer(postItemWriter)
+                .writer(postWriter)
                 .build();
     }
 

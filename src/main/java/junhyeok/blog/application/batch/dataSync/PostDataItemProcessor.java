@@ -1,4 +1,4 @@
-package junhyeok.blog.application.batch;
+package junhyeok.blog.application.batch.dataSync;
 
 import java.util.List;
 import junhyeok.blog.application.BlogDataClient;
