@@ -20,7 +20,7 @@ public record PostResponse(
         return new PostResponse(
                 post.getNotionPageId(),
                 post.getTitle(),
-                post.getExcerpt(),
+                post.getExcerpt() != null ? post.getExcerpt().value() : null,
                 post.getPublishedDate(),
                 CategoryResponse.from(post.getCategory()),
                 post.getTags().stream()

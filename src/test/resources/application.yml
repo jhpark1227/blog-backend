@@ -15,9 +15,11 @@ spring:
       initialize-schema: never
 
 batch:
-  post-sync:
-    cron: "0 0 * * * *"
+  post-sync.cron: "0 0 * * * *"
+  excerpt-refresh.cron: "0 0 0 1 1 1"
 
 notion:
   datasource-id: test-notion-database-id
   token: test-notion-token
+
+gemini.api-key: test-gemini-api-key

@@ -1,4 +1,4 @@
-package junhyeok.blog.application.batch;
+package junhyeok.blog.application.batch.dataSync;
 
 import java.time.LocalDateTime;
 import junhyeok.blog.domain.PostRepository;

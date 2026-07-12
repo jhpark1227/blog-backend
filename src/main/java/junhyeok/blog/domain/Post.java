@@ -1,5 +1,9 @@
 package junhyeok.blog.domain;
 
+import jakarta.annotation.Nullable;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.AttributeOverrides;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -32,9 +36,12 @@ public class Post extends BaseEntity {
 
     private String content;
 
-    private String excerpt;
-
-    private LocalDateTime excerptGeneratedAt;
+    @Nullable
+    @AttributeOverrides({
+            @AttributeOverride(name = "value", column = @Column(name = "excerpt")),
+            @AttributeOverride(name = "generatedAt", column = @Column(name = "excerpt_generated_at"))
+    })
+    private Excerpt excerpt;
 
     private LocalDate publishedDate;
 
@@ -76,6 +83,10 @@ public class Post extends BaseEntity {
         this.pinned = pinned;
         this.category = category;
         this.tags = tags;
+    }
+
+    public void updateExcerpt(Excerpt excerpt) {
+        this.excerpt = excerpt;
     }
 
     public void sync() {
