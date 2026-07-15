@@ -14,5 +14,5 @@ public interface CategoryRepository extends JpaRepository<Category, String> {
             GROUP BY c
             ORDER BY c.sortOrder ASC
             """)
-    List<CategoryResponse> findAllWithCount();
+    List<CategoryResponse> findAllWithPublishedPostCount();
 }

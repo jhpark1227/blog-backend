@@ -14,7 +14,7 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping("/categories")
-    public List<CategoryResponse> getAllCategories() {
-        return categoryService.getAllCategories();
+    public List<CategoryResponse> getCategoriesWithPublishedPostCount() {
+        return categoryService.getCategoriesWithPublishedPostCount();
     }
 }

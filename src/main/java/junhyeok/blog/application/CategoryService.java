@@ -14,7 +14,7 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
 
-    public List<CategoryResponse> getAllCategories() {
-        return categoryRepository.findAllWithCount();
+    public List<CategoryResponse> getCategoriesWithPublishedPostCount() {
+        return categoryRepository.findAllWithPublishedPostCount();
     }
 }
