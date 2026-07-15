@@ -3,14 +3,9 @@ package junhyeok.blog.domain;
 import java.util.List;
 import junhyeok.blog.application.dto.response.CategoryResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 public interface CategoryRepository extends JpaRepository<Category, String> {
-
-    @Modifying
-    @Query("DELETE FROM Category")
-    void deleteAll();
 
     @Query("""
             SELECT new junhyeok.blog.application.dto.response.CategoryResponse(p.category.notionOptionId, p.category.name, COUNT(p.category))
