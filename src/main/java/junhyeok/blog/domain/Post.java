@@ -17,6 +17,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import junhyeok.blog.global.exception.CustomException;
+import junhyeok.blog.global.exception.ErrorCode;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -60,14 +62,14 @@ public class Post extends BaseEntity {
     private List<Tag> tags = new ArrayList<>();
 
     public Post(String notionPageId, String title, PostStatus status, String content, LocalDate publishedDate,
-                LocalDateTime notionLastEditedTime, Category category, List<Tag> tags, boolean pinned) {
+                LocalDateTime notionLastEditedTime, LocalDateTime syncedAt, boolean pinned, Category category, List<Tag> tags) {
         this.notionPageId = notionPageId;
         this.title = title;
         this.status = status;
         this.content = content;
         this.publishedDate = publishedDate;
         this.notionLastEditedTime = notionLastEditedTime;
-        this.syncedAt = LocalDateTime.now();
+        this.syncedAt = syncedAt;
         this.pinned = pinned;
         this.category = category;
         this.tags = tags;
@@ -89,7 +91,10 @@ public class Post extends BaseEntity {
         this.excerpt = excerpt;
     }
 
-    public void markSynced() {
-        this.syncedAt = LocalDateTime.now();
+    public void markSynced(LocalDateTime syncedTime) {
+        if (syncedTime.isBefore(syncedAt)) {
+            throw new CustomException(ErrorCode.SYNCED_AT_IS_BEFORE);
+        }
+        this.syncedAt = syncedTime;
     }
 }
