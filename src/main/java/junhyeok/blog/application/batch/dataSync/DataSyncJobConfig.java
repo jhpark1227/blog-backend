@@ -26,12 +26,10 @@ public class DataSyncJobConfig {
     @Bean
     public Job dataSyncJob(
             Step tagSyncStep,
-            PostSyncJobListener postSyncJobListener,
             Step postSyncStep,
             Step deleteObsoletePostsStep
     ) {
         return new JobBuilder("dataSyncJob", jobRepository)
-                .listener(postSyncJobListener)
                 .start(tagSyncStep)
                 .next(postSyncStep)
                 .next(deleteObsoletePostsStep)
