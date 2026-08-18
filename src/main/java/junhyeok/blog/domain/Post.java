@@ -89,7 +89,7 @@ public class Post extends BaseEntity {
         this.excerpt = excerpt;
     }
 
-    public void sync() {
+    public void markSynced() {
         this.syncedAt = LocalDateTime.now();
     }
 }

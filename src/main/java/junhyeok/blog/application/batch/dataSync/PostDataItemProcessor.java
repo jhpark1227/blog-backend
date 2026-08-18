@@ -29,7 +29,7 @@ public class PostDataItemProcessor implements ItemProcessor<PostData, Post> {
         Category category = categoryRepository.findById(item.categoryId())
                 .orElseThrow(() -> new CustomException(ErrorCode.INVALID_CATEGORY_ID));
         List<Tag> tags = tagRepository.findAllById(item.tagIds());
-        return postRepository.findByNotionPageIdIgnoringDelete(item.pageId())
+        return postRepository.findById(item.pageId())
                 .map(existing -> {
                     boolean contentChanged = !item.lastEditedTime().isEqual(existing.getNotionLastEditedTime());
                     String content = contentChanged
@@ -37,7 +37,7 @@ public class PostDataItemProcessor implements ItemProcessor<PostData, Post> {
                             : existing.getContent();
                     existing.update(item.title(), item.status(), content, item.publishedDate(), item.lastEditedTime(), category,
                             tags, item.pinned());
-                    existing.sync();
+                    existing.markSynced();
                     return existing;
                 })
                 .orElseGet(() -> {
