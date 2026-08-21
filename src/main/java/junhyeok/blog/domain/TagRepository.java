@@ -6,6 +6,13 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface TagRepository extends JpaRepository<Tag, String> {
 
-    @Query("SELECT t FROM Post p JOIN p.tags t WHERE p.status = 'PUBLISHED' GROUP BY t ORDER BY COUNT(t) DESC")
+    @Query("""
+                SELECT t
+                FROM Post p
+                JOIN p.tags t
+                WHERE p.status = PostStatus.PUBLISHED
+                GROUP BY t
+                ORDER BY COUNT(t) DESC, t.sortOrder ASC
+            """)
     List<Tag> findTagsOrderByPublishedPostCountDesc();
 }
