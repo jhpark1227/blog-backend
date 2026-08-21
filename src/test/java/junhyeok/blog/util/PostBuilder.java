@@ -2,6 +2,7 @@ package junhyeok.blog.util;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import junhyeok.blog.domain.Category;
 import junhyeok.blog.domain.Post;
@@ -28,10 +29,10 @@ public class PostBuilder {
 
     public static PostBuilder create(int index) {
         return new PostBuilder(
-                "id" + index,
+                "postId" + index,
                 "제목" + index,
                 PostStatus.PUBLISHED,
-                "content",
+                "{\"blocks\":[]}",
                 LocalDate.of(2026, 1, 1),
                 LocalDateTime.of(2026, 1, 1, 20, 0),
                 LocalDateTime.of(2026, 1, 1, 20, 0),
@@ -41,8 +42,8 @@ public class PostBuilder {
         );
     }
 
-    public PostBuilder tags(List<Tag> tags) {
-        this.tags = tags;
+    public PostBuilder tags(Tag... tags) {
+        this.tags = Arrays.stream(tags).toList();
         return this;
     }
 
@@ -63,6 +64,11 @@ public class PostBuilder {
 
     public PostBuilder syncedAt(LocalDateTime syncedAt) {
         this.syncedAt = syncedAt;
+        return this;
+    }
+
+    public PostBuilder content(String content) {
+        this.content = content;
         return this;
     }
 

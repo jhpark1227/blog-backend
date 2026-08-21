@@ -20,7 +20,7 @@ class PostTest {
         Tag tag1 = new Tag("id1", "태그1", "red", 1);
         Tag tag2 = new Tag("id2", "태그2", "blue", 2);
         Post post = PostBuilder.create(1)
-                .tags(List.of(tag1))
+                .tags(tag1)
                 .category(category1)
                 .build();
 
