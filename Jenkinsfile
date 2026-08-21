@@ -30,6 +30,7 @@ pipeline {
 
         stage('Build & Push to ECR') {
             steps {
+                sh './gradlew copyApiSpec'
                 sh './gradlew build -x test'
                 script {
                     docker.withRegistry("https://${ECR_REPO.tokenize('/')[0]}", 'ecr:ap-northeast-2:aws-credentials') {

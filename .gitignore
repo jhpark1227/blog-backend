@@ -36,3 +36,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### API 문서 (빌드 시 생성)
+src/main/resources/static/openapi3.json
