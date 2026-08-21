@@ -39,9 +39,9 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
         cq.select(p).distinct(true).where(predicates(cb, p, categoryId, tagIds));
 
-        pageable.getSort().forEach(o ->
-                cq.orderBy(o.isAscending() ? cb.asc(p.get(o.getProperty())) : cb.desc(p.get(o.getProperty())))
-        );
+        cq.orderBy(pageable.getSort().stream()
+                .map(o -> o.isAscending() ? cb.asc(p.get(o.getProperty())) : cb.desc(p.get(o.getProperty())))
+                .toList());
 
         TypedQuery<Post> query = em.createQuery(cq);
         query.setFirstResult((int) pageable.getOffset());
