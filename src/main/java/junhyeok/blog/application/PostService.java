@@ -32,7 +32,7 @@ public class PostService {
     }
 
     public List<PostResponse> getPinnedPosts() {
-        return postRepository.findAllPinnedPost()
+        return postRepository.findPinnedPublishedPosts()
                 .stream()
                 .map(PostResponse::from)
                 .toList();

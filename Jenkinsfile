@@ -30,6 +30,7 @@ pipeline {
 
         stage('Build & Push to ECR') {
             steps {
+                sh './gradlew copyApiSpec'
                 sh './gradlew build -x test'
                 script {
                     docker.withRegistry("https://${ECR_REPO.tokenize('/')[0]}", 'ecr:ap-northeast-2:aws-credentials') {
@@ -49,7 +50,7 @@ pipeline {
                             aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REPO.tokenize("/")[0]} &&
                             cd ~/blog &&
                             docker compose pull spring &&
-                            docker compose up -d spring &&
+                            docker compose up -d &&
                             docker image prune -f
                         '
                     """

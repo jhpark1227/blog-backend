@@ -2,7 +2,7 @@ package junhyeok.blog.application;
 
 import java.util.List;
 import junhyeok.blog.application.dto.response.TagResponse;
-import junhyeok.blog.domain.PostRepository;
+import junhyeok.blog.domain.TagRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,10 +12,10 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class TagService {
 
-    private final PostRepository postRepository;
+    private final TagRepository tagRepository;
 
     public List<TagResponse> getTags() {
-        return postRepository.findAllTags()
+        return tagRepository.findTagsOrderByPublishedPostCountDesc()
                 .stream()
                 .map(TagResponse::from)
                 .toList();

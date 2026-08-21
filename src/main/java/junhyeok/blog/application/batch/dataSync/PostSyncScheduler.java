@@ -15,6 +15,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class PostSyncScheduler {
 
+    public static final String RUN_AT = "runAt";
+
     private final JobOperator jobOperator;
     private final Job dataSyncJob;
 
@@ -22,7 +24,7 @@ public class PostSyncScheduler {
     public void run() {
         try {
             JobParameters params = new JobParametersBuilder()
-                    .addLocalDateTime("runAt", LocalDateTime.now())
+                    .addLocalDateTime(RUN_AT, LocalDateTime.now())
                     .toJobParameters();
 
             jobOperator.start(dataSyncJob, params);

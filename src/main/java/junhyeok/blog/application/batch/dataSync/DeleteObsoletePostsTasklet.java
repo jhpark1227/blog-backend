@@ -16,22 +16,22 @@ import org.springframework.stereotype.Component;
 @StepScope
 public class DeleteObsoletePostsTasklet implements Tasklet {
 
-    private final LocalDateTime jobStartTime;
+    private final LocalDateTime runAt;
 
     private final PostRepository postRepository;
 
     public DeleteObsoletePostsTasklet(
-            @Value("#{jobExecutionContext['" + PostSyncJobListener.JOB_START_TIME_KEY + "']}") LocalDateTime jobStartTime,
+            @Value("#{jobParameters['" + PostSyncScheduler.RUN_AT + "']}") LocalDateTime runAt,
             PostRepository postRepository
     ) {
-        this.jobStartTime = jobStartTime;
+        this.runAt = runAt;
         this.postRepository = postRepository;
     }
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) {
-        int deletedCount = postRepository.markDeletedWhenNotSyncedSince(jobStartTime);
-        log.info("Notion에서 삭제된 포스트 {}건 소프트딜리트 완료 (기준 시각: {})", deletedCount, jobStartTime);
+        int deletedCount = postRepository.markDeletedWhenNotSyncedSince(runAt);
+        log.info("Notion에서 삭제된 포스트 {}건 소프트딜리트 완료 (기준 시각: {})", deletedCount, runAt);
         contribution.incrementWriteCount(deletedCount);
         return RepeatStatus.FINISHED;
     }

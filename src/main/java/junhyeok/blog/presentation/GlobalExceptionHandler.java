@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @Slf4j
@@ -36,6 +37,13 @@ public class GlobalExceptionHandler {
         log.info("[HANDLER_METHOD_VALIDATION_EXCEPTION] - {}",
                 exception.getParameterValidationResults().stream().flatMap(r -> r.getResolvableErrors().stream()).map(
                         MessageSourceResolvable::getDefaultMessage).toList());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse("INVALID_REQUEST"));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException exception) {
+        log.info("[TYPE_MISMATCH_EXCEPTION] {} - {}", exception.getName(), exception.getValue());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse("INVALID_REQUEST"));
     }

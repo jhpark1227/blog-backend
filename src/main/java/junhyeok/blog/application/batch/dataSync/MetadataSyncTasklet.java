@@ -27,8 +27,8 @@ public class MetadataSyncTasklet implements Tasklet {
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) {
-        categoryRepository.deleteAll();
-        tagRepository.deleteAll();
+        categoryRepository.deleteAllInBatch();
+        tagRepository.deleteAllInBatch();
         List<Category> allCategories = blogDataClient.getCategories();
         List<Tag> allTags = blogDataClient.getTags();
         categoryRepository.saveAll(allCategories);

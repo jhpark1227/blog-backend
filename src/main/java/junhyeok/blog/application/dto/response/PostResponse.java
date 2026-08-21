@@ -22,7 +22,7 @@ public record PostResponse(
                 post.getTitle(),
                 post.getExcerpt() != null ? post.getExcerpt().value() : null,
                 post.getPublishedDate(),
-                CategoryResponse.from(post.getCategory()),
+                post.getCategory() != null ? CategoryResponse.from(post.getCategory()) : null,
                 post.getTags().stream()
                         .map(TagResponse::from)
                         .toList(),
@@ -30,7 +30,7 @@ public record PostResponse(
         );
     }
 
-    private record CategoryResponse(
+    public record CategoryResponse(
             String notionOptionId,
             String name,
             String color
@@ -40,7 +40,7 @@ public record PostResponse(
         }
     }
 
-    private record TagResponse(
+    public record TagResponse(
             String notionOptionId,
             String name,
             String color
