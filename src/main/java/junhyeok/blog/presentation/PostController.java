@@ -8,7 +8,6 @@ import junhyeok.blog.application.PostService;
 import junhyeok.blog.application.dto.response.PostDetailResponse;
 import junhyeok.blog.application.dto.response.PostResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,15 +22,16 @@ public class PostController {
     private final PostService postService;
 
     @GetMapping("/posts")
-    public Page<PostResponse> getPosts(
+    public PageResponse<PostResponse> getPosts(
             @RequestParam(required = false) String categoryId,
             @RequestParam(required = false) List<String> tagIds,
             @RequestParam(defaultValue = "0") @PositiveOrZero int page,
             @RequestParam(defaultValue = "5") @Positive @Max(100) int size,
-            @RequestParam(defaultValue = "publishedDate") String sort,
+            @RequestParam(defaultValue = "PUBLISHED_DATE") PostSortField sort,
             @RequestParam(defaultValue = "DESC") Sort.Direction direction
     ) {
-        return postService.getPosts(categoryId, tagIds, PageRequest.of(page, size, Sort.by(direction, sort)));
+        return PageResponse.from(
+                postService.getPosts(categoryId, tagIds, PageRequest.of(page, size, Sort.by(direction, sort.getProperty()))));
     }
 
     @GetMapping("/posts/pinned")
