@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 import junhyeok.blog.application.dto.response.CategoryResponse;
+import junhyeok.blog.global.config.JpaAuditingConfig;
 import junhyeok.blog.util.PostBuilder;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +12,10 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
+import org.springframework.context.annotation.Import;
 
 @DataJpaTest
+@Import(JpaAuditingConfig.class)
 @AutoConfigureTestDatabase(replace = Replace.NONE)
 class CategoryRepositoryTest {
 
