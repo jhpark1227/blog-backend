@@ -50,7 +50,7 @@ pipeline {
                             aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REPO.tokenize("/")[0]} &&
                             cd ~/blog &&
                             docker compose pull spring &&
-                            docker compose up -d spring &&
+                            docker compose up -d &&
                             docker image prune -f
                         '
                     """
