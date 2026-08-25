@@ -1,5 +1,6 @@
 package junhyeok.blog.acceptance;
 
+import java.time.LocalDateTime;
 import junhyeok.blog.domain.Category;
 import junhyeok.blog.domain.CategoryRepository;
 import junhyeok.blog.domain.PostRepository;
@@ -35,8 +36,8 @@ class CategoryAcceptanceTest {
 
     @Test
     void 카테고리별_발행된_글_개수를_조회한다() {
-        Category category1 = categoryRepository.save(new Category("id1", "카테고리1", "red", 1));
-        Category category2 = categoryRepository.save(new Category("id2", "카테고리2", "blue", 2));
+        Category category1 = categoryRepository.save(new Category("id1", "카테고리1", "red", 1, LocalDateTime.of(2026, 1, 1, 0, 0)));
+        Category category2 = categoryRepository.save(new Category("id2", "카테고리2", "blue", 2, LocalDateTime.of(2026, 1, 1, 0, 0)));
         postRepository.save(PostBuilder.create(1).category(category1).build());
         postRepository.save(PostBuilder.create(2).category(category1).build());
         postRepository.save(PostBuilder.create(3).category(category2).status(PostStatus.PENDING).build());

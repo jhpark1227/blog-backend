@@ -15,10 +15,10 @@ class PostTest {
 
     @Test
     void 글_정보를_수정한다() {
-        Category category1 = new Category("id1", "카테고리1", "red", 1);
-        Category category2 = new Category("id2", "카테고리2", "green", 2);
-        Tag tag1 = new Tag("id1", "태그1", "red", 1);
-        Tag tag2 = new Tag("id2", "태그2", "blue", 2);
+        Category category1 = new Category("id1", "카테고리1", "red", 1, LocalDateTime.of(2026, 1, 1, 0, 0));
+        Category category2 = new Category("id2", "카테고리2", "green", 2, LocalDateTime.of(2026, 1, 1, 0, 0));
+        Tag tag1 = new Tag("id1", "태그1", "red", 1, LocalDateTime.of(2026, 1, 1, 0, 0));
+        Tag tag2 = new Tag("id2", "태그2", "blue", 2, LocalDateTime.of(2026, 1, 1, 0, 0));
         Post post = PostBuilder.create(1)
                 .tags(tag1)
                 .category(category1)
@@ -59,8 +59,8 @@ class PostTest {
 
     @Test
     void 동기화_시각을_갱신한다() {
-        Category category = new Category("id1", "카테고리1", "red", 1);
-        Tag tag = new Tag("id1", "태그1", "red", 1);
+        Category category = new Category("id1", "카테고리1", "red", 1, LocalDateTime.of(2026, 1, 1, 0, 0));
+        Tag tag = new Tag("id1", "태그1", "red", 1, LocalDateTime.of(2026, 1, 1, 0, 0));
         Post post = new Post(
                 "id1",
                 "제목1",

@@ -3,6 +3,7 @@ package junhyeok.blog.infrastructure;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -70,21 +71,21 @@ public class NotionBlogDataClient implements BlogDataClient {
     }
 
     @Override
-    public List<Category> getCategories() {
+    public List<Category> getCategories(LocalDateTime syncedAt) {
         NotionDatasourceResponse response = restClient.get()
                 .uri("/v1/data_sources/{id}", DATA_SOURCE_ID)
                 .retrieve()
                 .body(NotionDatasourceResponse.class);
-        return response.getCategories();
+        return response.getCategories(syncedAt);
     }
 
     @Override
-    public List<Tag> getTags() {
+    public List<Tag> getTags(LocalDateTime syncedAt) {
         NotionDatasourceResponse response = restClient.get()
                 .uri("/v1/data_sources/{id}", DATA_SOURCE_ID)
                 .retrieve()
                 .body(NotionDatasourceResponse.class);
-        return response.getTags();
+        return response.getTags(syncedAt);
     }
 
     @Override
