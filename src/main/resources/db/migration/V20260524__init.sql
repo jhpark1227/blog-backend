@@ -153,6 +153,7 @@ CREATE TABLE post_tag
 (
     post_id VARCHAR(50) NOT NULL,
     tag_id  VARCHAR(50) NOT NULL,
+    PRIMARY KEY (post_id, tag_id),
     CONSTRAINT fk_post_tag_post FOREIGN KEY (post_id) REFERENCES post (notion_page_id) ON DELETE CASCADE,
     CONSTRAINT fk_post_tag_tag FOREIGN KEY (tag_id) REFERENCES tag (notion_option_id) ON DELETE CASCADE
 );
