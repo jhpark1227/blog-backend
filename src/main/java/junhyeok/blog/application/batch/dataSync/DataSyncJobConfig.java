@@ -27,12 +27,14 @@ public class DataSyncJobConfig {
     public Job dataSyncJob(
             Step tagSyncStep,
             Step postSyncStep,
-            Step deleteObsoletePostsStep
+            Step deleteObsoletePostsStep,
+            Step deleteObsoleteMetadataStep
     ) {
         return new JobBuilder("dataSyncJob", jobRepository)
                 .start(tagSyncStep)
                 .next(postSyncStep)
                 .next(deleteObsoletePostsStep)
+                .next(deleteObsoleteMetadataStep)
                 .build();
     }
 
@@ -61,6 +63,13 @@ public class DataSyncJobConfig {
     public Step deleteObsoletePostsStep(DeleteObsoletePostsTasklet deleteObsoletePostsTasklet) {
         return new StepBuilder("deleteObsoletePostsStep", jobRepository)
                 .tasklet(deleteObsoletePostsTasklet, transactionManager)
+                .build();
+    }
+
+    @Bean
+    public Step deleteObsoleteMetadataStep(DeleteObsoleteMetadataTasklet deleteObsoleteMetadataTasklet) {
+        return new StepBuilder("deleteObsoleteMetadataStep", jobRepository)
+                .tasklet(deleteObsoleteMetadataTasklet, transactionManager)
                 .build();
     }
 }

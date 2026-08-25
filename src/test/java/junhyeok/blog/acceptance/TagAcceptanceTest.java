@@ -1,5 +1,6 @@
 package junhyeok.blog.acceptance;
 
+import java.time.LocalDateTime;
 import junhyeok.blog.domain.PostRepository;
 import junhyeok.blog.domain.Tag;
 import junhyeok.blog.domain.TagRepository;
@@ -27,8 +28,8 @@ public class TagAcceptanceTest {
 
     @Test
     void 태그_조회_API를_호출한다() {
-        Tag tag1 = tagRepository.save(new Tag("tagId1", "태그1", "빨강", 1));
-        Tag tag2 = tagRepository.save(new Tag("tagId2", "태그2", "파랑", 2));
+        Tag tag1 = tagRepository.save(new Tag("tagId1", "태그1", "빨강", 1, LocalDateTime.of(2026, 1, 1, 0, 0)));
+        Tag tag2 = tagRepository.save(new Tag("tagId2", "태그2", "파랑", 2, LocalDateTime.of(2026, 1, 1, 0, 0)));
         postRepository.save(PostBuilder.create(1).tags(tag1, tag2).build());
 
         ResponseSpec response = client.get()

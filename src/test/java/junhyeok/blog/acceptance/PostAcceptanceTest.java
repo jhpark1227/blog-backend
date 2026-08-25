@@ -1,6 +1,7 @@
 package junhyeok.blog.acceptance;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import junhyeok.blog.domain.Category;
 import junhyeok.blog.domain.CategoryRepository;
 import junhyeok.blog.domain.PostRepository;
@@ -64,10 +65,10 @@ class PostAcceptanceTest {
 
     @Test
     void 카테고리와_태그로_글_목록_조회_API를_호출한다() {
-        Tag tag1 = tagRepository.save(new Tag("tagId1", "태그1", "빨강", 1));
-        Tag tag2 = tagRepository.save(new Tag("tagId2", "태그2", "파랑", 2));
-        Category category1 = categoryRepository.save(new Category("categoryId1", "카테고리1", "빨강", 1));
-        Category category2 = categoryRepository.save(new Category("categoryId2", "카테고리2", "파랑", 2));
+        Tag tag1 = tagRepository.save(new Tag("tagId1", "태그1", "빨강", 1, LocalDateTime.of(2026, 1, 1, 0, 0)));
+        Tag tag2 = tagRepository.save(new Tag("tagId2", "태그2", "파랑", 2, LocalDateTime.of(2026, 1, 1, 0, 0)));
+        Category category1 = categoryRepository.save(new Category("categoryId1", "카테고리1", "빨강", 1, LocalDateTime.of(2026, 1, 1, 0, 0)));
+        Category category2 = categoryRepository.save(new Category("categoryId2", "카테고리2", "파랑", 2, LocalDateTime.of(2026, 1, 1, 0, 0)));
         postRepository.save(
                 PostBuilder.create(1)
                         .publishedDate(LocalDate.of(2026, 1, 1))

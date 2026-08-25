@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import junhyeok.blog.domain.Category;
 import junhyeok.blog.domain.Post;
@@ -55,8 +56,8 @@ class PostRepositoryImplTest {
 
     @Test
     void 카테고리로_필터링한다() {
-        Category category1 = em.persist(new Category("categoryId1", "카테고리1", "빨강", 1));
-        Category category2 = em.persist(new Category("categoryId2", "카테고리2", "파랑", 2));
+        Category category1 = em.persist(new Category("categoryId1", "카테고리1", "빨강", 1, LocalDateTime.of(2026, 1, 1, 0, 0)));
+        Category category2 = em.persist(new Category("categoryId2", "카테고리2", "파랑", 2, LocalDateTime.of(2026, 1, 1, 0, 0)));
         for (int i = 1; i <= 3; i++) {
             Post post = PostBuilder.create(i)
                     .category(category1)
@@ -84,8 +85,8 @@ class PostRepositoryImplTest {
 
     @Test
     void 태그로_필터링한다() {
-        Tag tag1 = em.persist(new Tag("tagId1", "태그1", "빨강", 1));
-        Tag tag2 = em.persist(new Tag("tagId2", "태그2", "파랑", 2));
+        Tag tag1 = em.persist(new Tag("tagId1", "태그1", "빨강", 1, LocalDateTime.of(2026, 1, 1, 0, 0)));
+        Tag tag2 = em.persist(new Tag("tagId2", "태그2", "파랑", 2, LocalDateTime.of(2026, 1, 1, 0, 0)));
         for (int i = 1; i <= 3; i++) {
             Post post = PostBuilder.create(i)
                     .tags(tag1)
@@ -113,8 +114,8 @@ class PostRepositoryImplTest {
 
     @Test
     void 태그_여러개로_필터링한다() {
-        Tag tag1 = em.persist(new Tag("tagId1", "태그1", "빨강", 1));
-        Tag tag2 = em.persist(new Tag("tagId2", "태그2", "파랑", 2));
+        Tag tag1 = em.persist(new Tag("tagId1", "태그1", "빨강", 1, LocalDateTime.of(2026, 1, 1, 0, 0)));
+        Tag tag2 = em.persist(new Tag("tagId2", "태그2", "파랑", 2, LocalDateTime.of(2026, 1, 1, 0, 0)));
         em.persist(
                 PostBuilder.create(1)
                         .tags(tag1)

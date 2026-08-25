@@ -1,5 +1,6 @@
 package junhyeok.blog.domain;
 
+import java.time.LocalDateTime;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
@@ -26,9 +27,9 @@ class TagRepositoryTest {
 
     @Test
     void 발행된_글이_많은_순서대로_태그를_조회한다() {
-        Tag tag1 = em.persist(new Tag("tagId1", "태그1", "빨강", 1));
-        Tag tag2 = em.persist(new Tag("tagId2", "태그2", "파랑", 2));
-        Tag tag3 = em.persist(new Tag("tagId3", "태그3", "노랑", 3));
+        Tag tag1 = em.persist(new Tag("tagId1", "태그1", "빨강", 1, LocalDateTime.of(2026, 1, 1, 0, 0)));
+        Tag tag2 = em.persist(new Tag("tagId2", "태그2", "파랑", 2, LocalDateTime.of(2026, 1, 1, 0, 0)));
+        Tag tag3 = em.persist(new Tag("tagId3", "태그3", "노랑", 3, LocalDateTime.of(2026, 1, 1, 0, 0)));
         em.persist(PostBuilder.create(1).tags(tag1).build());
         em.persist(PostBuilder.create(2).tags(tag2).build());
         em.persist(PostBuilder.create(3).tags(tag2).build());
@@ -41,5 +42,20 @@ class TagRepositoryTest {
         List<Tag> tags = sut.findTagsOrderByPublishedPostCountDesc();
 
         assertThat(tags).extracting(Tag::getNotionOptionId).containsExactly("tagId3", "tagId2", "tagId1");
+    }
+
+    @Test
+    void 기준_시각보다_먼저_동기화된_태그를_삭제한다() {
+        LocalDateTime runAt = LocalDateTime.of(2026, 1, 2, 0, 0);
+        em.persist(new Tag("tagId1", "태그1", "빨강", 1, runAt));
+        em.persist(new Tag("tagId2", "태그2", "파랑", 2, LocalDateTime.of(2026, 1, 1, 0, 0)));
+        em.flush();
+        em.clear();
+
+        int deletedCount = sut.deleteWhenNotSyncedSince(runAt);
+        em.clear();
+
+        assertThat(deletedCount).isEqualTo(1);
+        assertThat(sut.findAll()).extracting(Tag::getNotionOptionId).containsExactly("tagId1");
     }
 }

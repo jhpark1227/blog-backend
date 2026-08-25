@@ -1,5 +1,6 @@
 package junhyeok.blog.application;
 
+import java.time.LocalDateTime;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
@@ -34,9 +35,9 @@ class CategoryServiceTest {
 
     @Test
     void 모든_카테고리와_글_개수를_함께_조회한다() {
-        Category category1 = categoryRepository.save(new Category("id1", "카테고리1", "red", 1));
-        Category category2 = categoryRepository.save(new Category("id2", "카테고리2", "blue", 2));
-        Category category3 = categoryRepository.save(new Category("id3", "카테고리3", "green", 3));
+        Category category1 = categoryRepository.save(new Category("id1", "카테고리1", "red", 1, LocalDateTime.of(2026, 1, 1, 0, 0)));
+        Category category2 = categoryRepository.save(new Category("id2", "카테고리2", "blue", 2, LocalDateTime.of(2026, 1, 1, 0, 0)));
+        Category category3 = categoryRepository.save(new Category("id3", "카테고리3", "green", 3, LocalDateTime.of(2026, 1, 1, 0, 0)));
         Post post1 = PostBuilder.create(1)
                 .build();
         Post post2 = PostBuilder.create(2)

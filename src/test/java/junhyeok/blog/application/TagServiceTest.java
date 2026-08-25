@@ -1,5 +1,6 @@
 package junhyeok.blog.application;
 
+import java.time.LocalDateTime;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
@@ -34,9 +35,9 @@ class TagServiceTest {
 
     @Test
     void 태그를_발행된_글_개수_내림차순_정렬순서_오름차순으로_조회한다() {
-        Tag tag1 = tagRepository.save(new Tag("tagId1", "태그1", "빨강", 1));
-        Tag tag2 = tagRepository.save(new Tag("tagId2", "태그2", "파랑", 2));
-        Tag tag3 = tagRepository.save(new Tag("tagId3", "태그3", "노랑", 3));
+        Tag tag1 = tagRepository.save(new Tag("tagId1", "태그1", "빨강", 1, LocalDateTime.of(2026, 1, 1, 0, 0)));
+        Tag tag2 = tagRepository.save(new Tag("tagId2", "태그2", "파랑", 2, LocalDateTime.of(2026, 1, 1, 0, 0)));
+        Tag tag3 = tagRepository.save(new Tag("tagId3", "태그3", "노랑", 3, LocalDateTime.of(2026, 1, 1, 0, 0)));
         postRepository.save(PostBuilder.create(1)
                 .tags(tag1)
                 .build());
