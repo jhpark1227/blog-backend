@@ -21,4 +21,8 @@ public interface PostRepository extends JpaRepository<Post, String>, PostReposit
             "AND (p.excerpt IS NULL OR p.excerpt.generatedAt < p.notionLastEditedTime) " +
             "AND p.notionPageId > :cursor ORDER BY p.notionPageId ASC")
     List<Post> findExcerptRefreshTargetsAfter(@Param("cursor") String cursor, Pageable pageable);
+
+    @Modifying
+    @Query("UPDATE Post p SET p.viewCount = p.viewCount + 1 WHERE p.notionPageId = :id")
+    void increaseViewCountById(@Param("id") String id);
 }

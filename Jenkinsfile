@@ -51,6 +51,7 @@ pipeline {
                             cd ~/blog &&
                             docker compose pull spring &&
                             docker compose up -d &&
+                            docker exec nginx nginx -s reload &&
                             docker image prune -f
                         '
                     """

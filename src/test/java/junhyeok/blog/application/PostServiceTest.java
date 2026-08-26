@@ -1,10 +1,12 @@
 package junhyeok.blog.application;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 import junhyeok.blog.application.dto.response.PostDetailResponse;
 import junhyeok.blog.application.dto.response.PostDetailResponse.TagResponse;
 import junhyeok.blog.application.dto.response.PostResponse;
@@ -114,7 +116,8 @@ class PostServiceTest {
                                 new PostResponse.TagResponse("tagId1", "태그1", "빨강"),
                                 new PostResponse.TagResponse("tagId2", "태그2", "파랑")
                         ),
-                        false
+                        false,
+                        0
                 ));
         softly.assertAll();
     }
@@ -140,6 +143,46 @@ class PostServiceTest {
         softly.assertThat(findPost.tags()).extracting(TagResponse::notionOptionId).containsExactly("tagId1");
         softly.assertThat(findPost.category().notionOptionId()).isEqualTo("categoryId1");
         softly.assertAll();
+    }
+
+    @Test
+    void 글을_조회하고_조회수를_증가시킨다() {
+        Tag tag1 = tagRepository.save(new Tag("tagId1", "태그1", "빨강", 1, LocalDateTime.of(2026, 1, 1, 0, 0)));
+        Category category1 = categoryRepository.save(new Category("categoryId1", "카테고리1", "빨강", 1, LocalDateTime.of(2026, 1, 1, 0, 0)));
+        Post post = postRepository.save(
+                PostBuilder.create(1)
+                        .category(category1)
+                        .tags(tag1)
+                        .build()
+        );
+
+        PostDetailResponse findPost = sut.getPostAndIncreaseViewCount(post.getNotionPageId());
+
+        Post savedPost = postRepository.findById(post.getNotionPageId()).orElseThrow(NoSuchElementException::new);
+        SoftAssertions softly = new SoftAssertions();
+        softly.assertThat(findPost.notionPageId()).isEqualTo(post.getNotionPageId());
+        softly.assertThat(findPost.title()).isEqualTo(post.getTitle());
+        softly.assertThat(findPost.content()).isEqualTo(post.getContent());
+        softly.assertThat(findPost.publishedDate()).isEqualTo(post.getPublishedDate());
+        softly.assertThat(findPost.tags()).extracting(TagResponse::notionOptionId).containsExactly("tagId1");
+        softly.assertThat(findPost.category().notionOptionId()).isEqualTo("categoryId1");
+        softly.assertThat(savedPost.getViewCount()).isEqualTo(1);
+        softly.assertAll();
+    }
+
+    @Test
+    void 글을_조회하면_조회수가_누적된다() {
+        Post post = postRepository.save(
+                PostBuilder.create(1)
+                        .build()
+        );
+
+        for (int i = 0; i < 3; i++) {
+            sut.getPostAndIncreaseViewCount(post.getNotionPageId());
+        }
+
+        Post savedPost = postRepository.findById(post.getNotionPageId()).orElseThrow();
+        assertThat(savedPost.getViewCount()).isEqualTo(3);
     }
 
     @Test

@@ -13,8 +13,8 @@ public record PostResponse(
         LocalDate publishedDate,
         CategoryResponse category,
         List<TagResponse> tags,
-        boolean pinned
-
+        boolean pinned,
+        int viewCount
 ) {
     public static PostResponse from(Post post) {
         return new PostResponse(
@@ -26,7 +26,8 @@ public record PostResponse(
                 post.getTags().stream()
                         .map(TagResponse::from)
                         .toList(),
-                post.isPinned()
+                post.isPinned(),
+                post.getViewCount()
         );
     }
 

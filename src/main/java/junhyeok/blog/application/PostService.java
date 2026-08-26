@@ -20,21 +20,31 @@ public class PostService {
 
     private final PostRepository postRepository;
 
+    @Transactional(readOnly = true)
     public Page<PostResponse> getPosts(String categoryId, List<String> tagIds, Pageable pageable) {
         return postRepository.findPublishedBy(categoryId, tagIds, pageable)
                 .map(PostResponse::from);
     }
 
+    @Transactional(readOnly = true)
     public PostDetailResponse getPost(String postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
         return PostDetailResponse.from(post);
     }
 
+    @Transactional(readOnly = true)
     public List<PostResponse> getPinnedPosts() {
         return postRepository.findPinnedPublishedPosts()
                 .stream()
                 .map(PostResponse::from)
                 .toList();
+    }
+
+    public PostDetailResponse getPostAndIncreaseViewCount(String postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+        postRepository.increaseViewCountById(postId);
+        return PostDetailResponse.from(post);
     }
 }

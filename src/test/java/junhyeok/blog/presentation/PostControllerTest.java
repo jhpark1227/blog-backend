@@ -3,17 +3,22 @@ package junhyeok.blog.presentation;
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
 import static com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.subsectionWithPath;
 import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.epages.restdocs.apispec.SimpleType;
+import jakarta.servlet.http.Cookie;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -33,6 +38,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.http.HttpHeaders;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -60,7 +66,8 @@ class PostControllerTest {
                 LocalDate.of(2026, 1, 1),
                 new CategoryResponse("categoryId1", "카테고리1", "빨강"),
                 List.of(new TagResponse("tagId1", "태그1", "파랑")),
-                pinned
+                pinned,
+                0
         );
     }
 
@@ -145,6 +152,7 @@ class PostControllerTest {
                                         fieldWithPath("content[].tags[].name").description("태그명"),
                                         fieldWithPath("content[].tags[].color").description("태그 색깔"),
                                         fieldWithPath("content[].pinned").description("고정 여부"),
+                                        fieldWithPath("content[].viewCount").description("조회수"),
                                         fieldWithPath("page").description("페이지"),
                                         fieldWithPath("size").description("페이지 사이즈"),
                                         fieldWithPath("totalElements").description("전체 개수"),
@@ -188,9 +196,10 @@ class PostControllerTest {
                 "{\"blocks\":[]}",
                 LocalDate.of(2026, 1, 1),
                 new PostDetailResponse.CategoryResponse("id1", "카테고리1", "빨강"),
-                List.of(new PostDetailResponse.TagResponse("id1", "태그1", "파랑"))
+                List.of(new PostDetailResponse.TagResponse("id1", "태그1", "파랑")),
+                0
         );
-        given(postService.getPost("id1"))
+        given(postService.getPostAndIncreaseViewCount("id1"))
                 .willReturn(postDetailResponse);
 
         ResultActions result = mockMvc.perform(get("/posts/{postId}", "id1"));
@@ -221,6 +230,7 @@ class PostControllerTest {
                                         fieldWithPath("title").description("글 제목"),
                                         subsectionWithPath("content").description("글 내용 JSON"),
                                         fieldWithPath("publishedDate").description("발행일"),
+                                        fieldWithPath("viewCount").description("조회수"),
                                         fieldWithPath("category").description("카테고리"),
                                         fieldWithPath("category.notionOptionId").description("카테고리 ID"),
                                         fieldWithPath("category.name").description("카테고리명"),
@@ -237,7 +247,7 @@ class PostControllerTest {
     @Test
     @DisplayName("GET /posts/{postId}")
     void 존재하지_않는_ID로_글_단건_조회_API를_호출하면_404_응답() throws Exception {
-        given(postService.getPost("notFoundId"))
+        given(postService.getPostAndIncreaseViewCount("notFoundId"))
                 .willThrow(new CustomException(ErrorCode.POST_NOT_FOUND));
 
         ResultActions result = mockMvc.perform(get("/posts/{postId}", "notFoundId"));
@@ -257,6 +267,56 @@ class PostControllerTest {
                                 )
                                 .build()
                 )));
+    }
+
+    @Test
+    @DisplayName("GET /posts/{postId}")
+    void 쿠키에_해당_글_ID가_있으면_조회수를_올리지_않는다() throws Exception {
+        PostDetailResponse postDetailResponse = new PostDetailResponse(
+                "id1",
+                "제목1",
+                "{\"blocks\":[]}",
+                LocalDate.of(2026, 1, 1),
+                new PostDetailResponse.CategoryResponse("id1", "카테고리1", "빨강"),
+                List.of(new PostDetailResponse.TagResponse("id1", "태그1", "파랑")),
+                0
+        );
+        given(postService.getPost("id1"))
+                .willReturn(postDetailResponse);
+
+        mockMvc.perform(get("/posts/{postId}", "id1")
+                        .cookie(new Cookie("VIEWED-POST-IDS", "id1")))
+                .andExpect(status().isOk())
+                .andExpect(header().doesNotExist(HttpHeaders.SET_COOKIE));
+
+        verify(postService, never()).getPostAndIncreaseViewCount(any());
+    }
+
+    @Test
+    @DisplayName("GET /posts/{postId}")
+    void 쿠키에_해당_글_ID가_없으면_조회수를_올리고_쿠키에_추가한다() throws Exception {
+        PostDetailResponse postDetailResponse = new PostDetailResponse(
+                "id1",
+                "제목1",
+                "{\"blocks\":[]}",
+                LocalDate.of(2026, 1, 1),
+                new PostDetailResponse.CategoryResponse("id1", "카테고리1", "빨강"),
+                List.of(new PostDetailResponse.TagResponse("id1", "태그1", "파랑")),
+                0
+        );
+        given(postService.getPostAndIncreaseViewCount("id1"))
+                .willReturn(postDetailResponse);
+
+        ResultActions result = mockMvc.perform(get("/posts/{postId}", "id1")
+                .cookie(new Cookie("VIEWED-POST-IDS", "id2")));
+
+        result.andExpect(status().isOk())
+                .andExpect(jsonPath("$.notionPageId").value("id1"))
+                .andExpect(header().string(HttpHeaders.SET_COOKIE, containsString("VIEWED-POST-IDS=id2.id1")))
+                .andExpect(header().string(HttpHeaders.SET_COOKIE, containsString("Path=/")))
+                .andExpect(header().string(HttpHeaders.SET_COOKIE, containsString("HttpOnly")));
+
+        verify(postService, never()).getPost(any());
     }
 
     @Test
@@ -292,7 +352,8 @@ class PostControllerTest {
                                         fieldWithPath("[].tags[].notionOptionId").description("태그 ID"),
                                         fieldWithPath("[].tags[].name").description("태그명"),
                                         fieldWithPath("[].tags[].color").description("태그 색깔"),
-                                        fieldWithPath("[].pinned").description("고정 여부")
+                                        fieldWithPath("[].pinned").description("고정 여부"),
+                                        fieldWithPath("[].viewCount").description("조회수")
                                 )
                                 .build()
                 )));
