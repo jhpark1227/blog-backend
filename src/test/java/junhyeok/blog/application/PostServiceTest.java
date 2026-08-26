@@ -116,7 +116,8 @@ class PostServiceTest {
                                 new PostResponse.TagResponse("tagId1", "태그1", "빨강"),
                                 new PostResponse.TagResponse("tagId2", "태그2", "파랑")
                         ),
-                        false
+                        false,
+                        0
                 ));
         softly.assertAll();
     }

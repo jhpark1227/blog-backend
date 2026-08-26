@@ -13,7 +13,8 @@ public record PostDetailResponse(
         @JsonRawValue String content,
         LocalDate publishedDate,
         CategoryResponse category,
-        List<TagResponse> tags
+        List<TagResponse> tags,
+        int viewCount
 ) {
     public static PostDetailResponse from(Post post) {
         return new PostDetailResponse(
@@ -24,7 +25,8 @@ public record PostDetailResponse(
                 post.getCategory() != null ? CategoryResponse.from(post.getCategory()) : null,
                 post.getTags().stream()
                         .map(TagResponse::from)
-                        .toList()
+                        .toList(),
+                post.getViewCount()
         );
     }
 

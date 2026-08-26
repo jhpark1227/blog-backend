@@ -66,7 +66,8 @@ class PostControllerTest {
                 LocalDate.of(2026, 1, 1),
                 new CategoryResponse("categoryId1", "카테고리1", "빨강"),
                 List.of(new TagResponse("tagId1", "태그1", "파랑")),
-                pinned
+                pinned,
+                0
         );
     }
 
@@ -151,6 +152,7 @@ class PostControllerTest {
                                         fieldWithPath("content[].tags[].name").description("태그명"),
                                         fieldWithPath("content[].tags[].color").description("태그 색깔"),
                                         fieldWithPath("content[].pinned").description("고정 여부"),
+                                        fieldWithPath("content[].viewCount").description("조회수"),
                                         fieldWithPath("page").description("페이지"),
                                         fieldWithPath("size").description("페이지 사이즈"),
                                         fieldWithPath("totalElements").description("전체 개수"),
@@ -194,7 +196,8 @@ class PostControllerTest {
                 "{\"blocks\":[]}",
                 LocalDate.of(2026, 1, 1),
                 new PostDetailResponse.CategoryResponse("id1", "카테고리1", "빨강"),
-                List.of(new PostDetailResponse.TagResponse("id1", "태그1", "파랑"))
+                List.of(new PostDetailResponse.TagResponse("id1", "태그1", "파랑")),
+                0
         );
         given(postService.getPostAndIncreaseViewCount("id1"))
                 .willReturn(postDetailResponse);
@@ -227,6 +230,7 @@ class PostControllerTest {
                                         fieldWithPath("title").description("글 제목"),
                                         subsectionWithPath("content").description("글 내용 JSON"),
                                         fieldWithPath("publishedDate").description("발행일"),
+                                        fieldWithPath("viewCount").description("조회수"),
                                         fieldWithPath("category").description("카테고리"),
                                         fieldWithPath("category.notionOptionId").description("카테고리 ID"),
                                         fieldWithPath("category.name").description("카테고리명"),
@@ -274,7 +278,8 @@ class PostControllerTest {
                 "{\"blocks\":[]}",
                 LocalDate.of(2026, 1, 1),
                 new PostDetailResponse.CategoryResponse("id1", "카테고리1", "빨강"),
-                List.of(new PostDetailResponse.TagResponse("id1", "태그1", "파랑"))
+                List.of(new PostDetailResponse.TagResponse("id1", "태그1", "파랑")),
+                0
         );
         given(postService.getPost("id1"))
                 .willReturn(postDetailResponse);
@@ -296,7 +301,8 @@ class PostControllerTest {
                 "{\"blocks\":[]}",
                 LocalDate.of(2026, 1, 1),
                 new PostDetailResponse.CategoryResponse("id1", "카테고리1", "빨강"),
-                List.of(new PostDetailResponse.TagResponse("id1", "태그1", "파랑"))
+                List.of(new PostDetailResponse.TagResponse("id1", "태그1", "파랑")),
+                0
         );
         given(postService.getPostAndIncreaseViewCount("id1"))
                 .willReturn(postDetailResponse);
@@ -346,7 +352,8 @@ class PostControllerTest {
                                         fieldWithPath("[].tags[].notionOptionId").description("태그 ID"),
                                         fieldWithPath("[].tags[].name").description("태그명"),
                                         fieldWithPath("[].tags[].color").description("태그 색깔"),
-                                        fieldWithPath("[].pinned").description("고정 여부")
+                                        fieldWithPath("[].pinned").description("고정 여부"),
+                                        fieldWithPath("[].viewCount").description("조회수")
                                 )
                                 .build()
                 )));
