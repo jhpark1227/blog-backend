@@ -51,7 +51,9 @@ public class Post extends BaseEntity {
 
     private LocalDateTime syncedAt;
 
-    boolean pinned;
+    private boolean pinned;
+
+    private int viewCount;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")

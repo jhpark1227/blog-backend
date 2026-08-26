@@ -143,6 +143,7 @@ CREATE TABLE post
     excerpt                 VARCHAR(255),
     excerpt_generated_at    DATETIME(6),
     pinned                  BIT                                      NOT NULL,
+    view_count              INT                                      NOT NULL DEFAULT 0,
     created_at              DATETIME(6)                              NOT NULL,
     updated_at              DATETIME(6)                              NOT NULL,
     category_id             VARCHAR(50),
