@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:tc:mysql:8.4.5:///test
+    url: jdbc:tc:mariadb:11.8:///test
   jpa:
     open-in-view: false
     hibernate:
