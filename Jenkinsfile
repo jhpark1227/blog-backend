@@ -6,6 +6,7 @@ pipeline {
         ECR_REPO   = credentials('ecr-repo-url')
         IMAGE_TAG  = "${env.BUILD_NUMBER}"
         EC2_HOST   = credentials('prod-ec2-host')
+        TESTCONTAINERS_HOST_OVERRIDE = 'host.docker.internal'
     }
 
     stages {
