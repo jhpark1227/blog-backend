@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:testdb;MODE=MYSQL
+    url: jdbc:tc:mysql:8.4.5:///test
   jpa:
     open-in-view: false
     hibernate:

@@ -19,28 +19,32 @@ repositories {
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-h2console")
-    implementation("org.springframework.boot:spring-boot-starter-batch")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
+    implementation("org.springframework.boot:spring-boot-starter-batch")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    runtimeOnly("com.mysql:mysql-connector-j")
+    implementation("org.springframework.boot:spring-boot-flyway")
+    implementation("org.flywaydb:flyway-mysql")
+
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     runtimeOnly("io.micrometer:micrometer-registry-prometheus")
-    compileOnly("org.projectlombok:lombok")
-    runtimeOnly("com.h2database:h2")
-    runtimeOnly("com.mysql:mysql-connector-j")
-    annotationProcessor("org.projectlombok:lombok")
+
     testImplementation("org.springframework.boot:spring-boot-starter-batch-test")
     testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
-    testCompileOnly("org.projectlombok:lombok")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testAnnotationProcessor("org.projectlombok:lombok")
-    implementation("org.springframework.boot:spring-boot-flyway")
-    implementation("org.flywaydb:flyway-mysql")
+    testImplementation("org.testcontainers:testcontainers-mysql")
+
     testImplementation("org.springframework.boot:spring-boot-restdocs")
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
     testImplementation("com.epages:restdocs-api-spec-mockmvc:0.20.1")
+
+    annotationProcessor("org.projectlombok:lombok")
+    testAnnotationProcessor("org.projectlombok:lombok")
+    compileOnly("org.projectlombok:lombok")
+    testCompileOnly("org.projectlombok:lombok")
 }
 
 tasks.withType<Test> {
