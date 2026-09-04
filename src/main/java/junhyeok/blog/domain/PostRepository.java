@@ -25,4 +25,20 @@ public interface PostRepository extends JpaRepository<Post, String>, PostReposit
     @Modifying
     @Query("UPDATE Post p SET p.viewCount = p.viewCount + 1 WHERE p.notionPageId = :id")
     void increaseViewCountById(@Param("id") String id);
+
+    @Query("""
+                SELECT p.notionPageId FROM Post p
+                WHERE p.status = PostStatus.PUBLISHED AND p.notionPageId > :cursor
+                AND (p.embeddedAt IS NULL OR p.embeddedAt < p.notionLastEditedTime)
+                ORDER BY p.notionPageId
+            """)
+    List<String> findEmbeddingTargetIdsAfter(@Param("cursor") String cursor, Pageable pageable);
+
+    @Query("""
+                SELECT p FROM Post p
+                WHERE p.status != PostStatus.PUBLISHED AND p.embeddedAt IS NOT NULL
+                AND p.notionPageId > :cursor
+                ORDER BY p.notionPageId
+            """)
+    List<Post> findVectorPurgeTargetsAfter(@Param("cursor") String cursor, Pageable pageable);
 }
