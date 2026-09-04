@@ -14,12 +14,21 @@ spring:
   batch:
     job:
       enabled: false
-    jdbc:
-      initialize-schema: never
+  ai:
+    google.genai:
+      api-key: ${GEMINI_API_KEY}
+      chat.model: gemini-3.6-flash
+      embedding:
+        api-key: ${GEMINI_API_KEY}
+        text.dimensions: 768
+    vectorstore.mariadb:
+      schema-validation: true
+      dimensions: 768
+      schema-name: blog
 
 batch:
-  post-sync.cron: "0 0 * * * *"
-  excerpt-refresh.cron: "0 0 4 * * *"
+  post-sync.cron: "0 0 0/2 * * *"
+  excerpt-refresh.cron: "0 30 4 * * *"
 
 notion:
   datasource-id: ${NOTION_DATASOURCE_ID}

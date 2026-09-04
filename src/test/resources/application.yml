@@ -13,6 +13,14 @@ spring:
       enabled: false
     jdbc:
       initialize-schema: never
+  ai:
+    google.genai:
+      api-key: test-gemini-api-key
+      embedding.api-key: test-gemini-api-key
+    vectorstore.mariadb:
+      schema-validation: true
+      dimensions: 768
+      schema-name: test
 
 batch:
   post-sync.cron: "-"

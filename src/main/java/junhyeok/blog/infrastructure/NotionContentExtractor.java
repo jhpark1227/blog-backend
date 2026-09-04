@@ -1,6 +1,7 @@
 package junhyeok.blog.infrastructure;
 
 import java.util.Set;
+import junhyeok.blog.application.ContentExtractor;
 import junhyeok.blog.global.exception.CustomException;
 import junhyeok.blog.global.exception.ErrorCode;
 import org.springframework.stereotype.Component;
@@ -8,7 +9,7 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 @Component
-public class NotionContentExtractor {
+public class NotionContentExtractor implements ContentExtractor {
 
     private static final Set<String> SKIP_TYPES = Set.of(
             "page", "collection_view_page", "collection_view", "image"
@@ -21,6 +22,7 @@ public class NotionContentExtractor {
         this.objectMapper = objectMapper;
     }
 
+    @Override
     public String extractPlainText(String content) {
         try {
             JsonNode blockMap = objectMapper.readTree(content).path("block");

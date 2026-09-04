@@ -51,6 +51,8 @@ public class Post extends BaseEntity {
 
     private LocalDateTime syncedAt;
 
+    private LocalDateTime embeddedAt;
+
     private boolean pinned;
 
     private int viewCount;
@@ -98,5 +100,16 @@ public class Post extends BaseEntity {
             throw new CustomException(ErrorCode.SYNCED_AT_IS_BEFORE);
         }
         this.syncedAt = syncedTime;
+    }
+
+    public void markEmbedded(LocalDateTime embeddedAt) {
+        if (this.embeddedAt != null && embeddedAt.isBefore(this.embeddedAt)) {
+            throw new CustomException(ErrorCode.EMBEDDED_AT_IS_BEFORE);
+        }
+        this.embeddedAt = embeddedAt;
+    }
+
+    public void clearEmbedded() {
+        this.embeddedAt = null;
     }
 }

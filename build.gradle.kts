@@ -18,6 +18,8 @@ repositories {
     mavenCentral()
 }
 
+val springAiVersion by extra("2.0.1")
+
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
     implementation("org.springframework.boot:spring-boot-starter-batch")
@@ -27,6 +29,7 @@ dependencies {
     runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
     implementation("org.springframework.boot:spring-boot-flyway")
     implementation("org.flywaydb:flyway-mysql")
+    implementation("org.springframework.ai:spring-ai-starter-vector-store-mariadb")
 
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     runtimeOnly("io.micrometer:micrometer-registry-prometheus")
@@ -45,6 +48,16 @@ dependencies {
     testAnnotationProcessor("org.projectlombok:lombok")
     compileOnly("org.projectlombok:lombok")
     testCompileOnly("org.projectlombok:lombok")
+
+    implementation("org.springframework.ai:spring-ai-starter-model-google-genai")
+    implementation("org.springframework.ai:spring-ai-starter-model-google-genai-embedding")
+    implementation("org.springframework.ai:spring-ai-rag")
+}
+
+dependencyManagement {
+    imports {
+        mavenBom("org.springframework.ai:spring-ai-bom:$springAiVersion")
+    }
 }
 
 tasks.withType<Test> {

@@ -14,6 +14,7 @@ public enum ErrorCode {
     INVALID_EXCERPT_LENGTH("잘못된 요약문 길이입니다."),
     GEMINI_RESPONSE_INVALID("Gemini 응답을 파싱할 수 없습니다."),
     SYNCED_AT_IS_BEFORE("갱신 시간은 기존 값보다 이전일 수 없습니다."),
+    EMBEDDED_AT_IS_BEFORE("임베딩 시간은 기존 값보다 이전일 수 없습니다."),
     ;
 
     private final String message;

@@ -1,5 +1,10 @@
 package junhyeok.blog.application.batch.dataSync;
 
+import junhyeok.blog.application.batch.dataSync.embedding.DeleteUnpublishedPostVectorsTasklet;
+import junhyeok.blog.application.batch.dataSync.embedding.PostChunkingProcessor;
+import junhyeok.blog.application.batch.dataSync.embedding.PostChunks;
+import junhyeok.blog.application.batch.dataSync.embedding.PostEmbeddingTargetReader;
+import junhyeok.blog.application.batch.dataSync.embedding.PostVectorWriter;
 import junhyeok.blog.domain.Post;
 import junhyeok.blog.domain.PostData;
 import lombok.RequiredArgsConstructor;
@@ -28,13 +33,17 @@ public class DataSyncJobConfig {
             Step tagSyncStep,
             Step postSyncStep,
             Step deleteObsoletePostsStep,
-            Step deleteObsoleteMetadataStep
+            Step deleteObsoleteMetadataStep,
+            Step deleteUnpublishedPostVectorsStep,
+            Step postEmbeddingStep
     ) {
         return new JobBuilder("dataSyncJob", jobRepository)
                 .start(tagSyncStep)
                 .next(postSyncStep)
                 .next(deleteObsoletePostsStep)
                 .next(deleteObsoleteMetadataStep)
+                .next(deleteUnpublishedPostVectorsStep)
+                .next(postEmbeddingStep)
                 .build();
     }
 
@@ -70,6 +79,27 @@ public class DataSyncJobConfig {
     public Step deleteObsoleteMetadataStep(DeleteObsoleteMetadataTasklet deleteObsoleteMetadataTasklet) {
         return new StepBuilder("deleteObsoleteMetadataStep", jobRepository)
                 .tasklet(deleteObsoleteMetadataTasklet, transactionManager)
+                .build();
+    }
+
+    @Bean
+    public Step postEmbeddingStep(
+            PostEmbeddingTargetReader postEmbeddingTargetReader,
+            PostChunkingProcessor postChunkingProcessor,
+            PostVectorWriter postVectorWriter
+    ) {
+        return new ChunkOrientedStepBuilder<Post, PostChunks>(jobRepository, CHUNK_SIZE)
+                .transactionManager(transactionManager)
+                .reader(postEmbeddingTargetReader)
+                .processor(postChunkingProcessor)
+                .writer(postVectorWriter)
+                .build();
+    }
+
+    @Bean
+    public Step deleteUnpublishedPostVectorsStep(DeleteUnpublishedPostVectorsTasklet deleteUnpublishedPostVectorsTasklet) {
+        return new StepBuilder("deleteUnpublishedPostVectorsStep", jobRepository)
+                .tasklet(deleteUnpublishedPostVectorsTasklet, transactionManager)
                 .build();
     }
 }
