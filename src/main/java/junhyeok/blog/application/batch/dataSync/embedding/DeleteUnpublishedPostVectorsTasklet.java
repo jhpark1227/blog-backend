@@ -4,6 +4,7 @@ import java.util.List;
 import junhyeok.blog.domain.Post;
 import junhyeok.blog.domain.PostRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.StepContribution;
@@ -12,6 +13,7 @@ import org.springframework.batch.infrastructure.repeat.RepeatStatus;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class DeleteUnpublishedPostVectorsTasklet implements Tasklet {
@@ -38,6 +40,7 @@ public class DeleteUnpublishedPostVectorsTasklet implements Tasklet {
             cursor = posts.getLast().getNotionPageId();
             deleted += posts.size();
         }
+        log.info("비공개 전환된 포스트 {}건의 벡터 삭제 완료", deleted);
         contribution.incrementWriteCount(deleted);
         return RepeatStatus.FINISHED;
     }

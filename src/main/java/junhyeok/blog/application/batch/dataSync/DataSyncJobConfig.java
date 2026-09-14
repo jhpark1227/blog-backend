@@ -1,5 +1,7 @@
 package junhyeok.blog.application.batch.dataSync;
 
+import junhyeok.blog.application.batch.BatchJobListener;
+import junhyeok.blog.application.batch.LoggingItemListener;
 import junhyeok.blog.application.batch.dataSync.embedding.DeleteUnpublishedPostVectorsTasklet;
 import junhyeok.blog.application.batch.dataSync.embedding.PostChunkingProcessor;
 import junhyeok.blog.application.batch.dataSync.embedding.PostChunks;
@@ -18,6 +20,9 @@ import org.springframework.batch.infrastructure.item.ItemWriter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 
 @Configuration
 @RequiredArgsConstructor
@@ -35,9 +40,11 @@ public class DataSyncJobConfig {
             Step deleteObsoletePostsStep,
             Step deleteObsoleteMetadataStep,
             Step deleteUnpublishedPostVectorsStep,
-            Step postEmbeddingStep
+            Step postEmbeddingStep,
+            BatchJobListener batchJobListener
     ) {
         return new JobBuilder("dataSyncJob", jobRepository)
+                .listener(batchJobListener)
                 .start(tagSyncStep)
                 .next(postSyncStep)
                 .next(deleteObsoletePostsStep)
@@ -58,13 +65,22 @@ public class DataSyncJobConfig {
     public Step postSyncStep(
             PostDataItemReader postDataItemReader,
             PostDataItemProcessor postDataItemProcessor,
-            ItemWriter<Post> postWriter
+            ItemWriter<Post> postWriter,
+            LoggingItemListener loggingItemListener
     ) {
         return new ChunkOrientedStepBuilder<PostData, Post>(jobRepository, CHUNK_SIZE)
                 .transactionManager(transactionManager)
                 .reader(postDataItemReader)
                 .processor(postDataItemProcessor)
                 .writer(postWriter)
+                .faultTolerant()
+                .retryLimit(3)
+                .retry(
+                        ResourceAccessException.class,
+                        HttpServerErrorException.class,
+                        HttpClientErrorException.TooManyRequests.class
+                )
+                .listener(loggingItemListener)
                 .build();
     }
 
@@ -86,13 +102,18 @@ public class DataSyncJobConfig {
     public Step postEmbeddingStep(
             PostEmbeddingTargetReader postEmbeddingTargetReader,
             PostChunkingProcessor postChunkingProcessor,
-            PostVectorWriter postVectorWriter
+            PostVectorWriter postVectorWriter,
+            LoggingItemListener loggingItemListener
     ) {
         return new ChunkOrientedStepBuilder<Post, PostChunks>(jobRepository, CHUNK_SIZE)
                 .transactionManager(transactionManager)
                 .reader(postEmbeddingTargetReader)
                 .processor(postChunkingProcessor)
                 .writer(postVectorWriter)
+                .faultTolerant()
+                .skip(Exception.class)
+                .skipLimit(5)
+                .listener(loggingItemListener)
                 .build();
     }
 
