@@ -1,5 +1,7 @@
 package junhyeok.blog.infrastructure;
 
+import java.net.http.HttpClient;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -9,6 +11,8 @@ import junhyeok.blog.domain.Post;
 import junhyeok.blog.global.exception.CustomException;
 import junhyeok.blog.global.exception.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -34,11 +38,22 @@ public class GeminiExcerptClient implements ExcerptClient {
             @Value("${gemini.api-key}") String geminiApiKey,
             NotionContentExtractor contentExtractor
     ) {
+        ClientHttpRequestFactory requestFactory = createRequestFactory();
         this.restClient = RestClient.builder()
+                .requestFactory(requestFactory)
                 .baseUrl("https://generativelanguage.googleapis.com")
                 .defaultHeader("x-goog-api-key", geminiApiKey)
                 .build();
         this.contentExtractor = contentExtractor;
+    }
+
+    private static ClientHttpRequestFactory createRequestFactory() {
+        HttpClient httpClient = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(3))
+                .build();
+        JdkClientHttpRequestFactory factory = new JdkClientHttpRequestFactory(httpClient);
+        factory.setReadTimeout(Duration.ofSeconds(60));
+        return factory;
     }
 
     @Override

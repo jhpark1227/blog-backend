@@ -1,9 +1,11 @@
 package junhyeok.blog.infrastructure;
 
+import java.net.http.HttpClient;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,6 +19,8 @@ import junhyeok.blog.global.exception.ErrorCode;
 import junhyeok.blog.infrastructure.NotionDataSourceQueryResponse.PageResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import tools.jackson.databind.JsonNode;
@@ -30,8 +34,8 @@ public class NotionBlogDataClient implements BlogDataClient {
     public static final int PAGE_SIZE = 10;
     private final String DATA_SOURCE_ID;
 
-    private final RestClient restClient;
-    private final RestClient publicRestClient;
+    private final RestClient notionApiRestClient;
+    private final RestClient notionPageRestClient;
     private final ObjectMapper objectMapper;
 
     public NotionBlogDataClient(
@@ -39,16 +43,28 @@ public class NotionBlogDataClient implements BlogDataClient {
             @Value("${notion.token}") String token,
             ObjectMapper objectMapper
     ) {
+        ClientHttpRequestFactory requestFactory = createRequestFactory();
         this.DATA_SOURCE_ID = dataSourceId;
         this.objectMapper = objectMapper;
-        this.restClient = RestClient.builder()
+        this.notionApiRestClient = RestClient.builder()
+                .requestFactory(requestFactory)
                 .defaultHeader("Authorization", "Bearer " + token)
                 .defaultHeader("Notion-Version", "2026-03-11")
                 .baseUrl("https://api.notion.com")
                 .build();
-        this.publicRestClient = RestClient.builder()
+        this.notionPageRestClient = RestClient.builder()
+                .requestFactory(requestFactory)
                 .baseUrl("https://www.notion.so")
                 .build();
+    }
+
+    private static ClientHttpRequestFactory createRequestFactory() {
+        HttpClient httpClient = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(3))
+                .build();
+        JdkClientHttpRequestFactory factory = new JdkClientHttpRequestFactory(httpClient);
+        factory.setReadTimeout(Duration.ofSeconds(10));
+        return factory;
     }
 
     @Override
@@ -58,7 +74,7 @@ public class NotionBlogDataClient implements BlogDataClient {
             requestBody.put("start_cursor", cursor);
         }
         requestBody.put("page_size", PAGE_SIZE);
-        NotionDataSourceQueryResponse response = restClient.post()
+        NotionDataSourceQueryResponse response = notionApiRestClient.post()
                 .uri("/v1/data_sources/{id}/query", DATA_SOURCE_ID)
                 .body(requestBody)
                 .retrieve()
@@ -72,7 +88,7 @@ public class NotionBlogDataClient implements BlogDataClient {
 
     @Override
     public List<Category> getCategories(LocalDateTime syncedAt) {
-        NotionDatasourceResponse response = restClient.get()
+        NotionDatasourceResponse response = notionApiRestClient.get()
                 .uri("/v1/data_sources/{id}", DATA_SOURCE_ID)
                 .retrieve()
                 .body(NotionDatasourceResponse.class);
@@ -81,7 +97,7 @@ public class NotionBlogDataClient implements BlogDataClient {
 
     @Override
     public List<Tag> getTags(LocalDateTime syncedAt) {
-        NotionDatasourceResponse response = restClient.get()
+        NotionDatasourceResponse response = notionApiRestClient.get()
                 .uri("/v1/data_sources/{id}", DATA_SOURCE_ID)
                 .retrieve()
                 .body(NotionDatasourceResponse.class);
@@ -97,41 +113,34 @@ public class NotionBlogDataClient implements BlogDataClient {
                 "chunkNumber", 0,
                 "verticalColumns", false
         );
-        String responseBody = publicRestClient.post()
+        String responseBody = notionPageRestClient.post()
                 .uri("/api/v3/loadPageChunk")
                 .body(requestBody)
                 .retrieve()
                 .body(String.class);
-        try {
-            ObjectNode recordMap = (ObjectNode) objectMapper.readTree(responseBody).get("recordMap");
-            if (recordMap == null) {
-                throw new CustomException(ErrorCode.NOTION_RESPONSE_INVALID);
-            }
-            ObjectNode blockMap = (ObjectNode) recordMap.get("block");
-            fetchMissingBlocks(blockMap);
-            fetchCollectionData(recordMap, blockMap);
-            return transformRecordMap(recordMap);
-        } catch (CustomException e) {
-            throw e;
-        } catch (Exception e) {
-            log.error("Notion 페이지 콘텐츠 변환 실패 (pageId: {})", pageId, e);
-            throw new CustomException(ErrorCode.NOTION_RESPONSE_INVALID);
-        }
+        ObjectNode recordMap = requireObject(objectMapper.readTree(responseBody), "recordMap");
+        ObjectNode blockMap = requireObject(recordMap, "block");
+        fetchMissingBlocks(blockMap);
+        fetchCollectionData(recordMap, blockMap);
+        return transformRecordMap(recordMap);
     }
 
     private void fetchMissingBlocks(ObjectNode blockMap) {
+        Set<String> attempted = new HashSet<>();
         while (true) {
             Set<String> missing = findMissingChildIds(blockMap);
+            missing.removeAll(attempted);
             if (missing.isEmpty()) {
                 break;
             }
+            attempted.addAll(missing);
 
             List<Map<String, Object>> requests = missing.stream()
                     .map(id -> Map.<String, Object>of("pointer", Map.of("table", "block", "id", id), "version", -1))
                     .toList();
 
             JsonNode response = objectMapper.valueToTree(
-                    publicRestClient.post()
+                    notionPageRestClient.post()
                             .uri("/api/v3/syncRecordValues")
                             .body(Map.of("requests", requests))
                             .retrieve()
@@ -188,7 +197,7 @@ public class NotionBlogDataClient implements BlogDataClient {
             }
 
             JsonNode syncResponse = objectMapper.valueToTree(
-                    publicRestClient.post()
+                    notionPageRestClient.post()
                             .uri("/api/v3/syncRecordValues")
                             .body(Map.of("requests", requests))
                             .retrieve()
@@ -209,7 +218,7 @@ public class NotionBlogDataClient implements BlogDataClient {
                         )
                 );
                 JsonNode queryResponse = objectMapper.valueToTree(
-                        publicRestClient.post()
+                        notionPageRestClient.post()
                                 .uri("/api/v3/queryCollection")
                                 .body(queryBody)
                                 .retrieve()
@@ -288,5 +297,13 @@ public class NotionBlogDataClient implements BlogDataClient {
         }
 
         return result.toString();
+    }
+
+    private ObjectNode requireObject(JsonNode parent, String field) {
+        JsonNode node = parent.get(field);
+        if (node == null || !node.isObject()) {
+            throw new CustomException(ErrorCode.NOTION_RESPONSE_INVALID);
+        }
+        return (ObjectNode) node;
     }
 }
