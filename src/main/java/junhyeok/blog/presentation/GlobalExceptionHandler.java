@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
@@ -37,6 +38,14 @@ public class GlobalExceptionHandler {
         log.info("[HANDLER_METHOD_VALIDATION_EXCEPTION] - {}",
                 exception.getParameterValidationResults().stream().flatMap(r -> r.getResolvableErrors().stream()).map(
                         MessageSourceResolvable::getDefaultMessage).toList());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse("INVALID_REQUEST"));
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
+        log.info("[METHOD_ARGUMENT_NOT_VALID_EXCEPTION] - {}",
+                exception.getAllErrors().stream().map(MessageSourceResolvable::getDefaultMessage).toList());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse("INVALID_REQUEST"));
     }

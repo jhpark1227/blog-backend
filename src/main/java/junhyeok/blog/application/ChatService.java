@@ -1,8 +1,14 @@
 package junhyeok.blog.application;
 
+import java.util.UUID;
 import junhyeok.blog.application.chat.BlogSearchTools;
+import junhyeok.blog.application.dto.request.ChatRequest;
 import junhyeok.blog.application.dto.response.ChatResponse;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.ai.chat.memory.ChatMemoryRepository;
+import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -37,20 +43,38 @@ public class ChatService {
             - URL이나 링크는 만들어내지 않는다.
             """;
 
+    private static final int MAX_MEMORY_MESSAGES = 20;
+
     private final ChatClient chatClient;
 
-    public ChatService(ChatClient.Builder chatClientBuilder, BlogSearchTools blogSearchTools) {
+    public ChatService(ChatClient.Builder chatClientBuilder,
+                       BlogSearchTools blogSearchTools,
+                       ChatMemoryRepository chatMemoryRepository) {
+        ChatMemory chatMemory = MessageWindowChatMemory.builder()
+                .chatMemoryRepository(chatMemoryRepository)
+                .maxMessages(MAX_MEMORY_MESSAGES)
+                .build();
         this.chatClient = chatClientBuilder
                 .defaultSystem(SYSTEM_PROMPT)
                 .defaultTools(blogSearchTools)
+                .defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build())
                 .build();
     }
 
-    public ChatResponse chat(String query) {
+    public ChatResponse chat(ChatRequest request) {
+        String conversationId = resolveConversationId(request.conversationId());
         String content = chatClient.prompt()
-                .user(query)
+                .user(request.prompt())
+                .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, conversationId))
                 .call()
                 .content();
-        return new ChatResponse(content);
+        return new ChatResponse(conversationId, content);
+    }
+
+    private String resolveConversationId(String conversationId) {
+        if (conversationId == null || conversationId.isBlank()) {
+            return UUID.randomUUID().toString();
+        }
+        return conversationId;
     }
 }

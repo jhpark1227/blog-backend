@@ -30,6 +30,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-flyway")
     implementation("org.flywaydb:flyway-mysql")
     implementation("org.springframework.ai:spring-ai-starter-vector-store-mariadb")
+    implementation("org.springframework.ai:spring-ai-starter-model-chat-memory-repository-jdbc")
 
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     runtimeOnly("io.micrometer:micrometer-registry-prometheus")

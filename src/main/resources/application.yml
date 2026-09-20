@@ -21,6 +21,7 @@ spring:
       embedding:
         api-key: ${GEMINI_API_KEY}
         text.dimensions: 768
+    chat.memory.repository.jdbc.initialize-schema: never
     vectorstore.mariadb:
       schema-validation: true
       dimensions: 768
