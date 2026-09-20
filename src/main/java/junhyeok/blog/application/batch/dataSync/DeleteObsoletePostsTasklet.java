@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 @StepScope
 public class DeleteObsoletePostsTasklet implements Tasklet {
 
+    public static final double DELETE_RATIO_THRESHOLD = 0.2;
     private final LocalDateTime runAt;
 
     private final PostRepository postRepository;
@@ -30,6 +31,14 @@ public class DeleteObsoletePostsTasklet implements Tasklet {
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) {
+        long total = postRepository.countNotDeleted();
+        long targets = postRepository.countNotSyncedSince(runAt);
+        if (total > 0 && (double) targets / total > DELETE_RATIO_THRESHOLD) {
+            throw new IllegalStateException(
+                    "삭제 대상 비율 초과 (%d/%d, 기준 시각: %s) — 동기화가 불완전했을 가능성"
+                            .formatted(targets, total, runAt));
+        }
+
         int deletedCount = postRepository.markDeletedWhenNotSyncedSince(runAt);
         log.info("Notion에서 삭제된 포스트 {}건 소프트딜리트 완료 (기준 시각: {})", deletedCount, runAt);
         contribution.incrementWriteCount(deletedCount);

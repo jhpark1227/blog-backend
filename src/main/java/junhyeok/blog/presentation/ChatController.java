@@ -1,10 +1,12 @@
 package junhyeok.blog.presentation;
 
+import jakarta.validation.Valid;
 import junhyeok.blog.application.ChatService;
+import junhyeok.blog.application.dto.request.ChatRequest;
 import junhyeok.blog.application.dto.response.ChatResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -13,8 +15,8 @@ public class ChatController {
 
     private final ChatService chatService;
 
-    @GetMapping("/chat")
-    public ChatResponse chat(@RequestParam("prompt") String prompt) {
-        return chatService.chat(prompt);
+    @PostMapping("/chat")
+    public ChatResponse chat(@Valid @RequestBody ChatRequest request) {
+        return chatService.chat(request);
     }
 }

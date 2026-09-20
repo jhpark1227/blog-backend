@@ -21,10 +21,17 @@ spring:
       embedding:
         api-key: ${GEMINI_API_KEY}
         text.dimensions: 768
+    chat.memory.repository.jdbc.initialize-schema: never
     vectorstore.mariadb:
       schema-validation: true
       dimensions: 768
       schema-name: blog
+    retry:
+      max-attempts: 2
+      backoff:
+        initial-interval: 500ms
+        multiplier: 2
+        max-interval: 2s
 
 batch:
   post-sync.cron: "0 0 0/2 * * *"
@@ -35,10 +42,6 @@ notion:
   token: ${NOTION_TOKEN}
 
 gemini.api-key: ${GEMINI_API_KEY}
-
-logging:
-  pattern:
-    correlation: "[%X{requestId:-}] "
 
 management:
   endpoints.web.exposure.include: health, info, prometheus, metrics, loggers

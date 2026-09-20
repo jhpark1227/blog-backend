@@ -11,16 +11,19 @@ import org.springframework.data.repository.query.Param;
 public interface PostRepository extends JpaRepository<Post, String>, PostRepositoryCustom {
 
     @Modifying
-    @Query("UPDATE Post p SET p.status = PostStatus.DELETED WHERE p.syncedAt < :time")
+    @Query("""
+                    UPDATE Post p SET p.status = PostStatus.DELETED
+                    WHERE p.status != PostStatus.DELETED AND p.syncedAt < :time
+            """)
     int markDeletedWhenNotSyncedSince(@Param("time") LocalDateTime time);
 
     @Query("SELECT p FROM Post p WHERE p.status = PostStatus.PUBLISHED AND p.pinned IS TRUE ORDER BY p.publishedDate DESC")
     List<Post> findPinnedPublishedPosts();
 
-    @Query("SELECT p FROM Post p WHERE p.status = PostStatus.PUBLISHED " +
+    @Query("SELECT p.notionPageId FROM Post p WHERE p.status = PostStatus.PUBLISHED " +
             "AND (p.excerpt IS NULL OR p.excerpt.generatedAt < p.notionLastEditedTime) " +
             "AND p.notionPageId > :cursor ORDER BY p.notionPageId ASC")
-    List<Post> findExcerptRefreshTargetsAfter(@Param("cursor") String cursor, Pageable pageable);
+    List<String> findExcerptRefreshTargetIdsAfter(@Param("cursor") String cursor, Pageable pageable);
 
     @Modifying
     @Query("UPDATE Post p SET p.viewCount = p.viewCount + 1 WHERE p.notionPageId = :id")
@@ -41,4 +44,10 @@ public interface PostRepository extends JpaRepository<Post, String>, PostReposit
                 ORDER BY p.notionPageId
             """)
     List<Post> findVectorPurgeTargetsAfter(@Param("cursor") String cursor, Pageable pageable);
+
+    @Query("SELECT COUNT(p) FROM Post p WHERE p.status != PostStatus.DELETED AND p.syncedAt < :time")
+    long countNotSyncedSince(@Param("time") LocalDateTime time);
+
+    @Query("SELECT COUNT(p) FROM Post p WHERE p.status != PostStatus.DELETED")
+    long countNotDeleted();
 }
